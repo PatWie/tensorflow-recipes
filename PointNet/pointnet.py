@@ -181,7 +181,7 @@ class RandomRotatePoints(MapDataComponent):
 
 
 def get_data(hdf5s):
-    root = '/graphics/scratch/groh/geometry/datasets/ModelNet40/modelnet40_ply_hdf5_2048/'
+    root = '/datasets/ModelNet40/modelnet40_ply_hdf5_2048/'
     ds = []
     for hdf5 in hdf5s:
         ds.append(HDF5Data(os.path.join(root, hdf5), ['data', 'label']))
