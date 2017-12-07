@@ -1,0 +1,96 @@
+WARNING:sgfreader:/tmp/Database/1998/1998-05-11b.sgf is not correct
+WARNING:sgfreader:--> As given in yearbook, but 235 is illegal
+WARNING:sgfreader:/tmp/Database/1999/1999-04-10h.sgf is not correct
+WARNING:sgfreader:--> Illegal ko capture, though White was behind anyway.
+WARNING:sgfreader:/tmp/Database/1999/1999-11-29k.sgf is not correct
+WARNING:sgfreader:--> Original seems corrupt
+WARNING:sgfreader:/tmp/Database/1999/1999-06-30b.sgf is not correct
+WARNING:sgfreader:--> After 338 Imamura could have claimed the game for an illegal ko capture - the two passes apparently being ignored. This also implies an automatic loss for an illegal move has to be claimed, so is not really automatic.
+WARNING:sgfreader:/tmp/Database/1995/1995-05-15c.sgf is not correct
+WARNING:sgfreader:--> Illegal ko capture
+WARNING:sgfreader:/tmp/Database/1995/1995-03-12g.sgf is not correct
+WARNING:sgfreader:--> As given but the record is clearly corrupt after about move 130
+WARNING:sgfreader:/tmp/Database/1992/1992-09-02d.sgf is not correct
+WARNING:sgfreader:--> Moves 44/101/168/169 appear incorrect in source - edits here as suggeted by Li Ning
+WARNING:sgfreader:/tmp/Database/1992/1992-06-11a.sgf is not correct
+WARNING:sgfreader:--> Yi  was promoted as a result of this game. The record is corrupt as B 193 is illegal.
+WARNING:sgfreader:/tmp/Database/2006/2006-08-14d.sgf is not correct
+WARNING:sgfreader:--> Black re-took the ko illegally
+WARNING:sgfreader:/tmp/Database/1800-49/1802-01-22a.sgf is not correct
+WARNING:sgfreader:--> As given, but 158 is illegal - a ko threat is missing
+WARNING:sgfreader:/tmp/Database/1976-79/1979-00-00e.sgf is not correct
+WARNING:sgfreader:--> White lost through playing two moves in a row. The illegal move was 229, shown here
+WARNING:sgfreader:/tmp/Database/1976-79/1976-09-08a.sgf is not correct
+WARNING:sgfreader:--> Illegal ko capture
+WARNING:sgfreader:/tmp/Database/1976-79/1979-03-29b.sgf is not correct
+WARNING:sgfreader:--> As given there were 318 moves but 318 was an illegal capture at 136 and Black then filled at 136
+WARNING:sgfreader:/tmp/Database/1994/1994-06-30f.sgf is not correct
+WARNING:sgfreader:--> As given in yearbook, but 125 is illegal
+WARNING:sgfreader:/tmp/Database/1983/1983-08-09b.sgf is not correct
+WARNING:sgfreader:--> Illegal ko capture
+WARNING:sgfreader:/tmp/Database/1997/1997-03-13d.sgf is not correct
+WARNING:sgfreader:--> The source is badly corrupt and illogically says 179 moves were played.
+WARNING:sgfreader:/tmp/Database/1997/1997-03-18o.sgf is not correct
+WARNING:sgfreader:--> Record as given with illegal ko capture at 245
+WARNING:sgfreader:/tmp/Database/1997/1997-04-28o.sgf is not correct
+WARNING:sgfreader:--> Apparently White made an illegal ko recapture before resigning
+WARNING:sgfreader:/tmp/Database/1997/1997-12-04a.sgf is not correct
+WARNING:sgfreader:--> Illegal ko capture
+WARNING:sgfreader:/tmp/Database/2016/2016-01-07a.sgf is not correct
+WARNING:sgfreader:--> Illegal ko capture in a triple ko
+WARNING:sgfreader:/tmp/Database/2005/2005-07-25a.sgf is not correct
+WARNING:sgfreader:--> White illegally played 214 at 184
+WARNING:sgfreader:/tmp/Database/2003/2003-10-08e.sgf is not correct
+WARNING:sgfreader:--> Kobayashi took the ko back illegally on move 152
+WARNING:sgfreader:/tmp/Database/2003/2003-10-02a.sgf is not correct
+WARNING:sgfreader:--> Black 105 was an illegal move
+WARNING:sgfreader:/tmp/Database/1850-99/1893-11-12b.sgf is not correct
+WARNING:sgfreader:--> The source is corrupt in Fig. 1 around move 95 but moves have been inferred from Fig. 2
+WARNING:sgfreader:/tmp/Database/1940-49/1946-12-00b.sgf is not correct
+WARNING:sgfreader:--> Further moves were given but the record seemed corrupt
+WARNING:sgfreader:/tmp/Database/1982/1982-09-29b.sgf is not correct
+WARNING:sgfreader:--> White played an illegal ko capture
+WARNING:sgfreader:/tmp/Database/1980/1980-10-08a.sgf is not correct
+WARNING:sgfreader:--> Cho played an illegal ko capture but because he had asked the scorekeeper whether it
+WARNING:sgfreader:/tmp/Database/1985/1985-11-07a.sgf is not correct
+WARNING:sgfreader:--> Illegal ko recapture
+WARNING:sgfreader:/tmp/Database/1989/1989-09-10j.sgf is not correct
+WARNING:sgfreader:--> Move 183 is shown as an illegal ko capture, but result is not specifically shown as a
+WARNING:sgfreader:/tmp/Database/1996/1996-11-19a.sgf is not correct
+WARNING:sgfreader:--> 
+WARNING:sgfreader:/tmp/Database/2012/2012-06-07f.sgf is not correct
+WARNING:sgfreader:--> Cho made an illegal ko capture and was penalised 2 points, so resigned
+WARNING:sgfreader:/tmp/Database/2012/2012-05-05c.sgf is not correct
+WARNING:sgfreader:--> Black illegally re-took the ko
+WARNING:sgfreader:/tmp/Database/2012/2012-03-03f.sgf is not correct
+WARNING:sgfreader:--> B thought his last move captured and so illegally took off a white stone
+WARNING:sgfreader:/tmp/Database/1993/1993-06-10d.sgf is not correct
+WARNING:sgfreader:--> Black played an illegal ko capture
+WARNING:sgfreader:/tmp/Database/1993/1993-06-08b.sgf is not correct
+WARNING:sgfreader:--> Illegal ko capture
+WARNING:sgfreader:/tmp/Database/2002/2002-04-25q.sgf is not correct
+WARNING:sgfreader:--> As given, but 239 is actually illegal
+WARNING:sgfreader:/tmp/Database/2015/2015-06-17b.sgf is not correct
+WARNING:sgfreader:--> Illegal ko capture
+WARNING:sgfreader:/tmp/Database/2001/2001-04-23a.sgf is not correct
+WARNING:sgfreader:--> Wang Lei made an illegal ko capture on move 223 in what should have been a void
+WARNING:sgfreader:/tmp/Database/2001/2001-05-10aa.sgf is not correct
+WARNING:sgfreader:--> As given, but obviously slightly corrupt - 183 is illegal
+WARNING:sgfreader:/tmp/Database/1988/1988-05-17e.sgf is not correct
+WARNING:sgfreader:--> Source was corrupt: this is as published, with no attempt at correction
+WARNING:sgfreader:/tmp/Database/1988/1988-01-07d.sgf is not correct
+WARNING:sgfreader:--> The source is badly corrupt. 119 is missing and stones roundabout moved. 127 is
+WARNING:sgfreader:/tmp/Database/1988/1988-10-27a.sgf is not correct
+WARNING:sgfreader:--> Black made an illegal ko capture in time trouble, ironically over the last half-point ko. He would have won it and the game by 0.5 with proper play.
+WARNING:sgfreader:/tmp/Database/1970-75/1971-06-05a.sgf is not correct
+WARNING:sgfreader:--> Black made an illegal ko re-capture. This was the first illegal move in a title match.
+WARNING:sgfreader:/tmp/Database/1991/1991-07-10b.sgf is not correct
+WARNING:sgfreader:--> Illegal ko capture
+WARNING:sgfreader:/tmp/Database/2004/2004-05-10f.sgf is not correct
+WARNING:sgfreader:--> Illegal ko capture as part of quadruple ko
+WARNING:sgfreader:/tmp/Database/1930-39/1931-03-04u.sgf is not correct
+WARNING:sgfreader:--> The source is corrupt even before this point but now becomes unintelligible
+WARNING:sgfreader:/tmp/Database/1930-39/1934-10-24l.sgf is not correct
+WARNING:sgfreader:--> The source has two 129s and no 127 and becomes too corrupt at 137, though 286
+WARNING:sgfreader:/tmp/Database/1930-39/1932-03-09h.sgf is not correct
+WARNING:sgfreader:--> 193 moves were given but the final moves of the source are corrupt

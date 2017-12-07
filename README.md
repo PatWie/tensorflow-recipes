@@ -12,3 +12,4 @@ Several implementations of recent papers based on [tensorpack](https://github.co
 | [Image Restoration Using Convolutional Auto-encoders with Symmetric Skip Connections](ImageRestorationSymmetricSkip) | [pdf](https://arxiv.org/abs/1606.08921) | slightly worse performance | |
 | [Deep Video Deblurring](DeepVideoDeblurring) | [pdf](https://arxiv.org/abs/1611.08387) | similar performance | | when trained on our [dataset](https://github.com/cgtuebingen/learning-blind-motion-deblurring) |
 | [Split-Brain Autoencoders: Unsupervised Learning by Cross-Channel Prediction](SplitBrainAutoEncoder) | [pdf](https://arxiv.org/abs/1611.09842) | not finished | |
+| [Policy-Network (SL) from AlphaGO](AlphaGO) | [pdf](https://gogameguru.com/i/2016/03/deepmind-mastering-go.pdf) | approx. 51% accuracy on validation set | |
