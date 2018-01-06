@@ -147,9 +147,9 @@ def get_own_board(fn, until=None):
     return actual_w, actual_b
 
 
-for fn in glob.glob('/home/patwie/godb/Database/*/*.sgf'):
 # for fn in glob.glob('/home/patwie/godb/Database/1998/1998-03-09d.sgf'):
 # for fn in glob.glob('/home/patwie/godb/Database/1998/1998-01-09k.sgf'):
+for fn in glob.glob('/home/patwie/godb/Database/*/*.sgf'):
 
     # filter not converted games (like incorrect and amateur)
     if not os.path.isfile(fn):

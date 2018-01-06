@@ -207,8 +207,10 @@ def eval(model_file, path, k, max_eval=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', help='comma separated list of GPU(s) to use.', required=True)
-    parser.add_argument('--load', help='path to checkpoint of model', default='train_log/tfgo-policy_net-1280625-181619/checkpoint')
-    parser.add_argument('--path', help='path to directory containing "go_train.lmdb" and "go_val.lmdb"', default='/scratch_shared/wieschol/pro')
+    parser.add_argument('--load', help='path to checkpoint of model',
+                        default='train_log/tfgo-policy_net-1280625-181619/checkpoint')
+    parser.add_argument('--path', help='path to directory containing "go_train.lmdb" and "go_val.lmdb"',
+                        default='/scratch_shared/wieschol/pro')
     parser.add_argument('--k', type=int, help='number_of_filters for network', choices=xrange(1, 256), default=128)
     parser.add_argument('--eval', help='evaluate accuracy on held-out games', action='store_true')
     parser.add_argument('--max_eval', help='number of games to evaluate on (optional)')
@@ -229,4 +231,3 @@ if __name__ == '__main__':
             config.session_init = SaverRestore(args.load, ignore=['learning_rate'])
 
         SyncMultiGPUTrainer(config).train()
-

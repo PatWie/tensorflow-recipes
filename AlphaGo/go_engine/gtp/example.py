@@ -1,5 +1,6 @@
 from gtp_engine_gnugo import GnuGoEngine
-
+import numpy as np
+import goplanes
 
 a = GnuGoEngine('gnugoA')
 
@@ -34,9 +35,9 @@ def get_board(board):
     return white, black
 
 
-
 w, b = get_board(board)
+color = 'W'
 
 planes = np.zeros((47 * 19 * 19), dtype=np.int32)
-        goplanes.planes_from_position(white_board, black_board, planes, int(color == 'W'))
-        planes = planes.reshape((47, 19, 19))
+goplanes.planes_from_position(w, b, planes, int(color == 'W'))
+planes = planes.reshape((47, 19, 19))

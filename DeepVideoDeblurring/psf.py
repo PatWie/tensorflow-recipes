@@ -141,6 +141,7 @@ class PSF(object):
             else:
                 continue
 
+
 if __name__ == '__main__':
     p = PSF(kernel_size=17)
     print np.sum(next(p.sample()))
