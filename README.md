@@ -4,32 +4,32 @@ Several implementations of recent papers based on the [tensorpack](https://githu
 
 Unfortunately, there is a difference between *re-implementing* deep-learning papers, and *re-obtaining* the published performance. The latter usually requires tedious hyper-parameter optimization amongst other things like very long training times. Hence, the following implementations have no guarantees to get the published performance. However you can judge this yourself using our pretrained models.
 
-- **DynamicFilterNetwork** (Brabandere et al., NIPS 2016) [[pdf]](https://arxiv.org/abs/1605.09673)
+- **[DynamicFilterNetwork](./DynamicFilterNetwork)** (Brabandere et al., NIPS 2016) [[pdf]](https://arxiv.org/abs/1605.09673)
 *Dynamic Filter Network*
     + reproduces the steering filter example
-- **PointNet** (Qi et al., CVPR 2017) [[pdf]](https://arxiv.org/abs/1612.00593) [[pretrained model]](http://files.patwie.com/recipes/models/pointnet.npy) 
+- **[PointNet](./PointNet)** (Qi et al., CVPR 2017) [[pdf]](https://arxiv.org/abs/1612.00593) [[pretrained model]](http://files.patwie.com/recipes/models/pointnet.npy) 
 *PointNet: Deep Learning on Point Sets for 3D Classification and Segmentation*
     + reproduces the accuracy from the paper
     + use dataset provided by the authors
-- **EnhanceNet** (Sajjadi et al., ICCV 2017) [[pdf]](https://arxiv.org/abs/1612.07919) [[pretrained model]](http://files.patwie.com/recipes/models/enet-pat.npy)
+- **[EnhanceNet](./EnhanceNet)** (Sajjadi et al., ICCV 2017) [[pdf]](https://arxiv.org/abs/1612.07919) [[pretrained model]](http://files.patwie.com/recipes/models/enet-pat.npy)
 *EnhanceNet: Single Image Super-Resolution Through Automated Texture Synthesis*
     + visually similar performance; seems to produce less artifacts than the author's implementation
-- **LetThereBeColor** (Iizuka et al., SIGGRAPH 2016) [[pdf]](http://hi.cs.waseda.ac.jp/~iizuka/projects/colorization/en/) [[pretrained model]](http://files.patwie.com/recipes/models/let-there-be-color.npy)
+- **[LetThereBeColor](./LetThereBeColor)** (Iizuka et al., SIGGRAPH 2016) [[pdf]](http://hi.cs.waseda.ac.jp/~iizuka/projects/colorization/en/) [[pretrained model]](http://files.patwie.com/recipes/models/let-there-be-color.npy)
 *Let there be Color!: Joint End-to-end Learning of Global and Local Image Priors for Automatic Image Colorization with Simultaneous Classification*
     + slightly worse performance probably due to shorter training time (authors reported 3 weeks; we just trained a few days)
-- **SubPixelSuperResolution** (Shi et al., CVPR 216) [[pdf]](https://arxiv.org/abs/1609.05158)
+- **[SubPixelSuperResolution](./SubPixelSuperResolution)** (Shi et al., CVPR 216) [[pdf]](https://arxiv.org/abs/1609.05158)
 *Real-Time Single Image and Video Super-Resolution Using an Efficient Sub-Pixel Convolutional Neural Network*
     + not reproduced yet, might be cause by the resizing method (PIL vs OpenCV, vs TensorFlow)
-- **ImageRestorationSymmetricSkip** (Mao et al., NIPS 2016 [[pdf]](https://arxiv.org/abs/1606.08921)
+- **[ImageRestorationSymmetricSkip](./ImageRestorationSymmetricSkip)** (Mao et al., NIPS 2016 [[pdf]](https://arxiv.org/abs/1606.08921)
 *Image Restoration Using Very Deep Convolutional Encoder-Decoder Networks with Symmetric Skip Connections*
     + slightly worse performance
-- **DeepVideoDeblurring** (Su et al., CVPR 2017) [[pdf]](https://arxiv.org/abs/1611.08387)
+- **[DeepVideoDeblurring](./DeepVideoDeblurring)** (Su et al., CVPR 2017) [[pdf]](https://arxiv.org/abs/1611.08387)
 *Deep Video Deblurring*
     + similar performance, when trained on our [dataset](https://github.com/cgtuebingen/learning-blind-motion-deblurring)
-- **SplitBrainAutoEncoder** (Zhang et al., CVPR 2017) [[pdf]](https://arxiv.org/abs/1611.09842)
+- **[SplitBrainAutoEncoder](./SplitBrainAutoEncoder)** (Zhang et al., CVPR 2017) [[pdf]](https://arxiv.org/abs/1611.09842)
 *Split-Brain Autoencoders: Unsupervised Learning by Cross-Channel Prediction*
     + not finished yet
-- **AlphaGO** (Silver et al, Nature 2016) [[pdf]](https://gogameguru.com/i/2016/03/deepmind-mastering-go.pdf)
+- **[AlphaGo](./AlphaGo)** (Silver et al, Nature 2016) [[pdf]](https://gogameguru.com/i/2016/03/deepmind-mastering-go.pdf)
     + just the Policy-Network (SL) from AlphaGO
     + validation accuracy is ~51% (paper reports 54%)
 
