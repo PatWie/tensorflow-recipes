@@ -35,7 +35,7 @@ class ImageDataFromZIPFile(RNGDataFlow):
         self.archivefiles = random.sample(self.archivefiles, self.max)
         for archive in self.archivefiles:
             im_data = archive[0].read(archive[1])
-            yield [im_data]
+            yield [np.asarray(bytearray(im_data))]
 
 
 class ImageEncode(MapDataComponent):
