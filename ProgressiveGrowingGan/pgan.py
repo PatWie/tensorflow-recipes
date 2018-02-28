@@ -58,7 +58,6 @@ def my_auto_reuse_variable_scope(func):
 
 
 # monkey-patch
-tensorpack.utils.logger.auto_set_dir = auto_set_dir
 Conv2D = MyConv2D
 
 
@@ -206,7 +205,7 @@ class Model(GANModelDesc):
         Returns:
             current last prediction
         """
-        with argscope(Conv2D, nl=tf.nn.leaky_relu, stride=1):
+        with argscope(Conv2D, activation=tf.nn.leaky_relu, stride=1):
             end_points = []
 
             logger.info("")
@@ -330,7 +329,7 @@ class Model(GANModelDesc):
 
                 logger.info("discriminator input 1/1 {}".format(x.get_shape()))
 
-                def down_block(x, block_id, last_nl=tf.nn.leaky_relu):
+                def down_block(x, block_id, last_activation=tf.nn.leaky_relu):
                     with tf.name_scope("down_block_%i" % block_id):
                         h_in, w_in, c_in = x.get_shape().as_list()[1:]
                         downsample_factor = 2 if block_id > 0 else 4
@@ -366,7 +365,7 @@ class Model(GANModelDesc):
                         prev_image = self.fromRGB(prev_image, BLOCKS - 1)
                         x = alpha * x + (1 - alpha) * prev_image
 
-                return FullyConnected('fc', x, 1, nl=tf.identity)
+                return FullyConnected('fc', x, 1, activation=tf.identity)
 
     @my_auto_reuse_variable_scope
     def toRGB(self, features, access_stage):
@@ -429,6 +428,10 @@ class Model(GANModelDesc):
         with tf.variable_scope('gen'):
             fake_img = self.generator(z, alpha=alpha)
             visualize_images('real_fake', real_img, fake_img)
+
+            fake_output = (fake_img + 1.) * 128.
+            fake_output = tf.cast(tf.clip_by_value(fake_output, 0, 255), tf.uint8, name='viz')
+            tf.identity(fake_output, name='fake_img')
 
         # DISCRIMINATOR
         # ---------------------------------------------------------------------
@@ -521,6 +524,27 @@ def get_data(lmdb):
     return ds
 
 
+def sample(model_path):
+    import cv2
+    import tqdm
+    pred = OfflinePredictor(PredictConfig(
+        session_init=get_model_loader(model_path),
+        model=Model(),
+        input_names=['z'],
+        output_names=['gen/fake_img']))
+
+    np.random.seed(42)
+
+    # CUDA_VISIBLE_DEVICES=3 python pgan.py --gpu 2 --blocks 6 --batch_size 4 --load /graphics/scratch/wieschol/CHECKPOINTS/pgan/block6_b/checkpoint --sample
+
+    for i in tqdm.tqdm(range(400)):
+        fake_img = pred(np.random.uniform(low=-1.0, high=1.0, size=[4, NOISE_DIM]))[0][0]
+        # fake_img = pred()[0][0]
+        fake_img = np.clip(fake_img[:, :, ::-1], 0, 255).astype(np.uint8)
+        cv2.imwrite('/tmp/fake%03i.jpg' % i, fake_img)
+
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', help='comma separated list of GPU(s) to use.')
@@ -528,6 +552,7 @@ if __name__ == '__main__':
     parser.add_argument('--action', help='load model', default="")
     parser.add_argument('--transition', action='store_true')
     parser.add_argument('--debug', action='store_true')
+    parser.add_argument('--sample', action='store_true')
     parser.add_argument('--blocks', default=1)
     parser.add_argument('--batch_size', default=-1, type=int)
     parser.add_argument('--lr', help='learning rate', default=0.001, type=np.float32)
@@ -556,32 +581,35 @@ if __name__ == '__main__':
         STEPS_PER_EPOCH = 3
         EPOCHS = 2
 
-    logger.auto_set_dir(args.action)
-
-    nr_tower = max(get_nr_gpu(), 1)
-    data = QueueInput(get_data(args.lmdb))
-    model = Model()
-
-    logger.info("run %i epochs", EPOCHS)
-    logger.info("use %i blocks", BLOCKS)
-    logger.info("use %i as batchsize", BATCH_SIZE)
-
-    if nr_tower == 1:
-        trainer = GANTrainer(data, model)
+    if args.sample:
+        sample(args.load)
     else:
-        trainer = MultiGPUGANTrainer(nr_tower, data, model)
+        logger.auto_set_dir()
 
-    callbacks = [
-        ModelSaver(),
-        MovingAverageSummary(),
-        ProgressBar(['d_loss', 'g_loss', 'alpha', 'loss-diff-g-d']),
-        MergeAllSummaries(),
-        RunUpdateOps()
-    ]
+        nr_tower = max(get_nr_gpu(), 1)
+        data = QueueInput(get_data(args.lmdb))
+        model = Model()
 
-    trainer.train_with_defaults(
-        callbacks=callbacks,
-        session_init=SaverRestore(args.load, ignore=['global_step']) if args.load else None,
-        steps_per_epoch=STEPS_PER_EPOCH,
-        max_epoch=EPOCHS,
-    )
+        logger.info("run %i epochs", EPOCHS)
+        logger.info("use %i blocks", BLOCKS)
+        logger.info("use %i as batchsize", BATCH_SIZE)
+
+        if nr_tower == 1:
+            trainer = GANTrainer(data, model)
+        else:
+            trainer = MultiGPUGANTrainer(nr_tower, data, model)
+
+        callbacks = [
+            ModelSaver(),
+            MovingAverageSummary(),
+            ProgressBar(['d_loss', 'g_loss', 'alpha', 'loss-diff-g-d']),
+            MergeAllSummaries(),
+            RunUpdateOps()
+        ]
+
+        trainer.train_with_defaults(
+            callbacks=callbacks,
+            session_init=SaverRestore(args.load, ignore=['global_step']) if args.load else None,
+            steps_per_epoch=STEPS_PER_EPOCH,
+            max_epoch=EPOCHS,
+        )
