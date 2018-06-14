@@ -6,7 +6,7 @@ Unfortunately, there is a difference between *re-implementing* deep-learning pap
 
 - **[ProgressiveGrowingGan](./ProgressiveGrowingGan)** (Karras et al., ICLR 2018) [[pdf]](https://arxiv.org/abs/1710.10196)
 *Progressive Growing of GANs for Improved Quality, Stability, and Variation*
-    + seems to produce visually similar performance
+    + seems to produce visual good performance on smaller resolutions due to hardware constraints
     + uses no gradient clipping (forgot to activate) and RMSprop
 - **[EnhanceNet](./EnhanceNet)** (Sajjadi et al., ICCV 2017) [[pdf]](https://arxiv.org/abs/1612.07919) [[pretrained model]](http://files.patwie.com/recipes/models/enet-pat.npy)
 *EnhanceNet: Single Image Super-Resolution Through Automated Texture Synthesis*
