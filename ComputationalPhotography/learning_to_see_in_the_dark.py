@@ -5,7 +5,6 @@
 import os
 import argparse
 import tensorflow as tf
-import numpy as np
 
 from tensorpack import *
 from tensorpack.utils.gpu import get_nr_gpu
@@ -20,6 +19,8 @@ Re-implementation of Learning to See in the Dark in by Chen et al.
 
 BATCH_SIZE = 2
 SHAPE = 512
+DATA_ROOT_DIR = '/scratch/wieschol/seeindark/dataset/Sony'
+EPOCH_MULTIPLIER = 10
 
 
 def visualize_images(name, imgs):
@@ -104,10 +105,7 @@ class VisualizeTestImages(Callback):
             ['long_exposure', 'short_exposure'], ['viz'])
 
     def _before_train(self):
-        self.val_ds = SonyDataset('/scratch/wieschol/seeindark/dataset/Sony', subset='test', num=50)
-        self.val_ds = CenterCropRaw(self.val_ds)
-        self.val_ds = CacheData(self.val_ds)
-        self.val_ds = BatchData(self.val_ds, 10)
+        self.val_ds = get_test_data()
         self.val_ds.reset_state()
 
     def _trigger(self):
@@ -118,41 +116,43 @@ class VisualizeTestImages(Callback):
             idx += 1
 
 
-def get_data(subset):
-    if subset == 'train':
-        ds = SonyDataset('/scratch/wieschol/seeindark/dataset/Sony', subset=subset)
-        ds = RandomCropRaw(ds)
-        aus = [imgaug.Flip(horiz=True), imgaug.Flip(vert=True), imgaug.Transpose()]
-        ds = AugmentImageComponents(ds, aus, index=(0, 1), copy=False)
-        ds = PrefetchDataZMQ(ds, nr_proc=10)
-        ds = BatchData(ds, 8)
-    else:
-        ds = SonyDataset('/scratch/wieschol/seeindark/dataset/Sony', subset=subset, num=50)
-        ds = CenterCropRaw(ds)
-        ds = BatchData(ds, 10)
-        ds = CacheData(ds)
+def get_train_data():
+    ds = SonyDataset(DATA_ROOT_DIR, subset='train')
+    ds = RandomCropRaw(ds)
+    aus = [imgaug.Flip(horiz=True), imgaug.Flip(vert=True), imgaug.Transpose()]
+    ds = AugmentImageComponents(ds, aus, index=(0, 1), copy=False)
+    ds = PrefetchDataZMQ(ds, nr_proc=10)
+    ds = BatchData(ds, 8)
+    return ds
+
+
+def get_test_data():
+    ds = SonyDataset(DATA_ROOT_DIR, subset='test', num=50)
+    ds = CenterCropRaw(ds)
+    ds = BatchData(ds, 10)
+    ds = CacheData(ds)
     return ds
 
 
 def get_config():
     logger.set_logger_dir('/scratch/wieschol/seeindark/train_log')
 
-    ds_train = get_data('train')
-    ds_test = get_data('test')
+    ds_train = get_train_data()
+    ds_test = get_test_data()
 
     return TrainConfig(
         model=Model(),
         data=QueueInput(ds_train),
         callbacks=[
-            PeriodicTrigger(ModelSaver(), every_k_epochs=10),
+            PeriodicTrigger(ModelSaver(), every_k_epochs=5),
             ScheduledHyperParamSetter(
                 'learning_rate', [(2000, 1e-5)]),
-            PeriodicTrigger(VisualizeTestImages(), every_k_epochs=1),
+            PeriodicTrigger(VisualizeTestImages(), every_k_epochs=5),
             InferenceRunner(ds_test,
                             ScalarStats(['l1_cost'])),
         ],
-        steps_per_epoch=ds_train.size(),
-        max_epoch=4000,
+        steps_per_epoch=ds_train.size() * EPOCH_MULTIPLIER,
+        max_epoch=4000 // EPOCH_MULTIPLIER,
     )
 
 

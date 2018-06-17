@@ -13,6 +13,7 @@ import os
 import glob
 import tqdm
 
+DATA_ROOT_DIR = '/scratch/wieschol/seeindark/dataset/Sony'
 
 # source: https://github.com/cchen156/Learning-to-See-in-the-Dark/blob/0c30dec046a82e1f4d6167eb060a35b3f1625f67/train_Sony.py#L100-L114
 def pack_raw(raw):
@@ -36,7 +37,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--root_dir', type=str,
-                        default='/scratch/wieschol/seeindark/dataset/Sony')
+                        default=DATA_ROOT_DIR)
     parser.add_argument('--subset', type=str,
                         default='train')
     args = parser.parse_args()
