@@ -17,7 +17,7 @@ import tensorpack.dataflow.imgaug as imgaug
 class SonyDataset(RNGDataFlow):
     """ Produce raw input data (short and long exposure times). """
 
-    def __init__(self, root_dir, shuffle=True, subset='train'):
+    def __init__(self, root_dir, shuffle=True, subset='train', num=None):
         """Summary
 
         Args:
@@ -33,6 +33,9 @@ class SonyDataset(RNGDataFlow):
         self.files = glob.glob(os.path.join(root_dir, 'long', '%i*.npy' % self.prefix))
         self.ids = [int(f.replace(os.path.join(root_dir, 'long', '%i' % self.prefix), '').split('_')[0])
                     for f in self.files]
+
+        if num is not None:
+            self.ids = self.ids[:min(len(self.ids), num)]
 
     def size(self):
         return len(self.ids)
@@ -92,16 +95,29 @@ class RandomCropRaw(ProxyDataFlow):
             yield [gt_float, input_float]
 
 
+class CenterCropRaw(RandomCropRaw):
+    def __init__(self, ds, patch_size=512):
+        super(RandomCropRaw, self).__init__(ds)
+        self.aug = imgaug.CenterCrop(patch_size)
+
+
 if __name__ == '__main__':
-    ds = SonyDataset('/scratch/wieschol/seeindark/dataset/Sony')
-    ds = RandomCropRaw(ds)
-    aus = [imgaug.Flip(horiz=True), imgaug.Flip(vert=True), imgaug.Transpose()]
-    ds = AugmentImageComponents(ds, aus, index=(0, 1), copy=False)
-    ds.reset_state()
-    next(ds.get_data())
-    ds = PrefetchDataZMQ(ds, nr_proc=10)
-    ds = BatchData(ds, 8)
-    ds = PrintData(ds)
-    ds.reset_state()
-    next(ds.get_data())
-    # TestDataSpeed(ds).start()
+    if False:
+        ds = SonyDataset('/scratch/wieschol/seeindark/dataset/Sony')
+        ds = RandomCropRaw(ds)
+        aus = [imgaug.Flip(horiz=True), imgaug.Flip(vert=True), imgaug.Transpose()]
+        ds = AugmentImageComponents(ds, aus, index=(0, 1), copy=False)
+        ds.reset_state()
+        next(ds.get_data())
+        ds = PrefetchDataZMQ(ds, nr_proc=10)
+        ds = BatchData(ds, 8)
+        ds = PrintData(ds)
+        ds.reset_state()
+        next(ds.get_data())
+        # TestDataSpeed(ds).start()
+
+    val_ds = SonyDataset('/scratch/wieschol/seeindark/dataset/Sony', subset='test', num=10)
+    val_ds = CenterCropRaw(val_ds)
+    val_ds.reset_state()
+    for k, dp in enumerate(val_ds.get_data()):
+        print k

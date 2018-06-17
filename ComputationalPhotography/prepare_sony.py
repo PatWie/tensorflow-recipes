@@ -31,12 +31,13 @@ def pack_raw(raw):
                           im[1:H:2, 0:W:2, :]), axis=2)
     return out
 
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--root_dir', type=str,
                         default='/scratch/wieschol/seeindark/dataset/Sony')
-    parser.add_argument('--subset', type='str',
+    parser.add_argument('--subset', type=str,
                         default='train')
     args = parser.parse_args()
 
@@ -47,7 +48,6 @@ if __name__ == '__main__':
     files = glob.glob(os.path.join(args.root_dir, 'long', '%i*.ARW' % prefix))
     ids = [int(f.replace(os.path.join(args.root_dir, 'long', '%i' % prefix), '').split('_')[0])
            for f in files]
-
 
     # pre-process long exposure time files
     for file_id in tqdm.tqdm(ids):
@@ -61,7 +61,6 @@ if __name__ == '__main__':
             gt_raw = rawpy.imread(filename_long)
             gt_uint16 = gt_raw.postprocess(use_camera_wb=True, half_size=False, no_auto_bright=True, output_bps=16)
             np.save(outfile, gt_uint16)
-
 
     # pre-process short exposure time files
     for file_id in tqdm.tqdm(ids):
