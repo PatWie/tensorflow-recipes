@@ -4,10 +4,10 @@ Several TensorFlow implementations of recent papers based on the [tensorpack](ht
 
 Unfortunately, there is a difference between *re-implementing* deep-learning papers, and *re-obtaining* the published performance. The latter usually requires tedious hyper-parameter optimization amongst other things like very long training times. Hence, the following implementations have no guarantees to get the published performance. However you can judge this yourself using our pretrained models.
 
-- **[Learning To See in the Dark](./ComputationalPhotography)** (Chen et al., CVPR 2018) [[pdf]](https://arxiv.org/abs/1805.01934)
+- **[Learning To See in the Dark](./LearningToSeeInTheDark)** (Chen et al., CVPR 2018) [[pdf]](https://arxiv.org/abs/1805.01934) [[pretrained model]](http://files.patwie.com/recipes/models/seeinthedark.npz)
 *Learning to See in the Dark*
     + the toughest part seems the data pre-processing
-    + currently training
+    + there are some over-exposed pixels in the prediction
 - **[ProgressiveGrowingGan](./ProgressiveGrowingGan)** (Karras et al., ICLR 2018) [[pdf]](https://arxiv.org/abs/1710.10196)
 *Progressive Growing of GANs for Improved Quality, Stability, and Variation*
     + seems to produce visual good performance on smaller resolutions due to hardware constraints

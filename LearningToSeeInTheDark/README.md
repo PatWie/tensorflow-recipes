@@ -35,6 +35,8 @@ python learning_to_see_in_the_dark.py --gpu 0 \
     --short "/scratch/wieschol/seeindark/dataset/Sony/short/1*_00_*.ARW" --exposure_time 10
 ```
 
+You might want to download the [pretrained model (not official)](http://files.patwie.com/recipes/models/seeinthedark.npz) for inference.
+
 ### Tensorboard
 
 Tensorboard will show intermediate results from the training and test set.

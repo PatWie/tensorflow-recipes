@@ -218,7 +218,7 @@ def apply(model_path, filenames_short, exposure_time_sec):
         cv2.imwrite(out_fn, p[:, :, ::-1])
 
         naive_uint16 = short_raw.postprocess(use_camera_wb=True, half_size=False, no_auto_bright=True, output_bps=16)
-        naive_float = np.float32(naive_uint16 / 65535.0)
+        naive_float = naive_uint16.astype(np.float32) / 65535.0
         # naive_float *= factor
         naive_float *= pred.mean() / naive_float.mean()
 
