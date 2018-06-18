@@ -47,7 +47,7 @@ def visualize_images(name, imgs):
         visualize_images('viz1', [img1])
         visualize_images('viz2', [img1, img2, img3])
     """
-    xy = (tf.concat(imgs, axis=2)) * 256.
+    xy = (tf.concat(imgs, axis=2)) * 255.
     xy = tf.cast(tf.clip_by_value(xy, 0, 255), tf.uint8, name='viz')
     tf.summary.image(name, xy, max_outputs=30)
 
