@@ -93,7 +93,7 @@ def rgb2lab(rgb, stack=True):
     y = scale1(y)
     z = scale1(z)
 
-    l = (116 * y) - 16
+    l = (116 * y) - 16  # noqa
     a = 500 * (x - y)
     b = 200 * (y - z)
 
@@ -129,7 +129,7 @@ class Model(ModelDesc):
 
         # convert to LAB
         lab = rgb2lab(rgb)
-        l = tf.expand_dims(lab[:, :, :, 0], 3)  # [0, 100]
+        l = tf.expand_dims(lab[:, :, :, 0], 3)  # [0, 100]  # noqa
         ab = lab[:, :, :, 1:2]  # [-127, 127]
 
         l_expected = tf.image.resize_images(l, (12, 12))

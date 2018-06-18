@@ -68,7 +68,7 @@ def rgb2lab(rgb):
     y = scale1(y)
     z = scale1(z)
 
-    l = (116 * y) - 16
+    l = (116 * y) - 16  # noqa
     a = 500 * (x - y)
     b = 200 * (y - z)
 

@@ -33,6 +33,7 @@ Remark:
         print np.sum(paper_inits)
 """
 
+
 @layer_register(log_shape=True)
 def MyConv2D(x, out_channel, kernel_shape,
              padding='SAME', stride=1,

@@ -13,7 +13,6 @@ import functools
 import numpy as np
 from termcolor import colored
 
-import tensorpack
 from tensorpack.utils.gpu import get_nr_gpu
 from tensorpack import *
 from tensorpack.tfutils.scope_utils import auto_reuse_variable_scope
@@ -535,14 +534,14 @@ def sample(model_path):
 
     np.random.seed(42)
 
-    # CUDA_VISIBLE_DEVICES=3 python pgan.py --gpu 2 --blocks 6 --batch_size 4 --load /graphics/scratch/wieschol/CHECKPOINTS/pgan/block6_b/checkpoint --sample
+    # CUDA_VISIBLE_DEVICES=3 python pgan.py --gpu 2 --blocks 6 --batch_size 4 \
+    #     --load /graphics/scratch/wieschol/CHECKPOINTS/pgan/block6_b/checkpoint --sample
 
     for i in tqdm.tqdm(range(400)):
         fake_img = pred(np.random.uniform(low=-1.0, high=1.0, size=[4, NOISE_DIM]))[0][0]
         # fake_img = pred()[0][0]
         fake_img = np.clip(fake_img[:, :, ::-1], 0, 255).astype(np.uint8)
         cv2.imwrite('/tmp/fake%03i.jpg' % i, fake_img)
-
 
 
 if __name__ == '__main__':

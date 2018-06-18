@@ -133,8 +133,8 @@ class RandomPoints(MapDataComponent):
         self.rng = get_rng(self)
 
         def func(points):
-            l = points.shape[0]
-            idxs = list(range(l))
+            num = points.shape[0]
+            idxs = list(range(num))
             self.rng.shuffle(idxs)
             idxs = idxs[:nr]
             return points[idxs]

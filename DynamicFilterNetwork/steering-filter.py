@@ -84,8 +84,8 @@ class OnlineTensorboardExport(Callback):
         pred_filters = np.concatenate([o[0][i, :, :, 0] for i in range(8)], axis=0)
 
         canvas = np.concatenate([n(gt_filters), n(pred_filters)], axis=1)
-        l = canvas.shape[0] // 2
-        canvas = np.concatenate([canvas[:l], canvas[l:]], axis=1)
+        h = canvas.shape[0] // 2
+        canvas = np.concatenate([canvas[:h], canvas[h:]], axis=1)
         canvas = cv2.resize(canvas[..., None] * 255, (0, 0), fx=10, fy=10)
 
         self.trainer.monitors.put_image('filter_export', canvas)

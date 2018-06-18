@@ -96,7 +96,7 @@ class CenterSquareResize(MapDataComponent):
 
                 img = cv2.resize(img, (256, 256))
                 return img
-            except:
+            except:  # noqa
                 return None
         super(CenterSquareResize, self).__init__(ds, func, index=index)
 

@@ -27,7 +27,6 @@ class ImageEncode(MapDataComponent):
 class ImageDecode(MapDataComponent):
     def __init__(self, ds, dtype=np.uint8, index=0):
         def func(im_data):
-           # return im_data
             img = cv2.imdecode(np.asarray(bytearray(im_data), dtype=dtype), cv2.IMREAD_COLOR)
             return img
 
@@ -79,20 +78,20 @@ class resizeDataFlow(dataflow.DataFlow):
         self.remainingImages = ds.size()
 
         for dp in ds.get_data():
-            #read image
+            # read image
             bgr = dp[0]
 
-            #convert to Pil Image and resize
+            # convert to Pil Image and resize
 
             rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
             pil_im = Image.fromarray(rgb)
             pil_im = pil_im.resize((self.image_size, self.image_size), resample=resample)
 
-            #convert back to opencv fomat
+            # convert back to opencv fomat
             resized = np.array(pil_im)
             resized = resized[:, :, ::-1].copy()
 
-            #beak for less images
+            # beak for less images
             self.remainingImages -= 1
 
             print self.remainingImages
@@ -100,13 +99,12 @@ class resizeDataFlow(dataflow.DataFlow):
             #     break
             yield [resized]
 
-
     def size(self):
         return self.remainingImages
 
 
 def resize_lmdb_content(size):
-    resizedLMDBPath = "/datasets/celebHQ/resized_" +  size + ".lmdb"
+    resizedLMDBPath = "/datasets/celebHQ/resized_%s.lmdb" % size
     dataflow = resizeDataFlow(size)
     dataflow = ImageEncode(dataflow, index=0)
     dftools.dump_dataflow_to_lmdb(dataflow, resizedLMDBPath)
@@ -182,4 +180,3 @@ if __name__ == '__main__':
         convert(args.h5, args.lmdb)
     elif args.resize:
         resize_lmdb_content(args.resize)
-
