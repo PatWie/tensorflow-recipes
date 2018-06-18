@@ -44,4 +44,4 @@ Tensorboard will show intermediate results from the training and test set.
 
 ### Issues
 
-Current very bright regions in the input (light sources) introduce some artifacts.
+Currently, very bright regions in the input (light sources) introduce some artifacts from this model. It might need to train more than just 4000 epochs.
