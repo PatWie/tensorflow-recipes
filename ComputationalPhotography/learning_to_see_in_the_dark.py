@@ -15,9 +15,24 @@ enable_argscope_for_module(tf.layers)
 """
 Re-implementation of Learning to See in the Dark in by Chen et al.
 <https://arxiv.org/abs/1805.01934>
+
+
+train:
+    python learning_to_see_in_the_dark.py --gpu 0
+
+apply:
+
+    python learning_to_see_in_the_dark.py --gpu 0 \
+        --apply --load /scratch/wieschol/seeindark/train_log2/checkpoint \
+        --short /scratch/wieschol/seeindark/dataset/Sony/short/00001_00_0.1s.ARW --exposure_time 10
+
+    python learning_to_see_in_the_dark.py --gpu 0 \
+        --apply --load /scratch/wieschol/seeindark/train_log2/checkpoint \
+        --short "/scratch/wieschol/seeindark/dataset/Sony/short/1*_00_*.ARW" --exposure_time 10
+
 """
 
-BATCH_SIZE = 2
+BATCH_SIZE = 1
 SHAPE = 512
 DATA_ROOT_DIR = '/scratch/wieschol/seeindark/dataset/Sony'
 EPOCH_MULTIPLIER = 10
@@ -38,14 +53,19 @@ def visualize_images(name, imgs):
 
 
 class Model(ModelDesc):
+    def __init__(self, H, W):
+        self.H = H
+        self.W = W
+
     def inputs(self):
-        return [tf.placeholder(tf.float32, (None, 2 * SHAPE, 2 * SHAPE, 3), 'long_exposure'),
-                tf.placeholder(tf.float32, (None, SHAPE, SHAPE, 4), 'short_exposure')]
+        return [tf.placeholder(tf.float32, (None, 2 * self.H, 2 * self.W, 3), 'long_exposure'),
+                tf.placeholder(tf.float32, (None, self.H, self.W, 4), 'short_exposure')]
 
     def build_graph(self, long_expo, short_expo):
         NF = 32
         with argscope([tf.layers.conv2d], activation=tf.nn.leaky_relu, padding='same'):
-            with argscope([tf.layers.conv2d_transpose], padding='valid', use_bias=False):
+            with argscope([tf.layers.conv2d_transpose], padding='valid', use_bias=False,
+                          kernel_initializer=tf.truncated_normal_initializer(0.02)):
                 conv1 = tf.layers.conv2d(short_expo, NF, 3, name='conv1_1')
                 conv1 = tf.layers.conv2d(conv1, NF, 3, name='conv1_2')
                 pool1 = tf.layers.max_pooling2d(conv1, 2, 2, padding='same', name='maxpool1')
@@ -135,18 +155,18 @@ def get_test_data():
 
 
 def get_config():
-    logger.set_logger_dir('/scratch/wieschol/seeindark/train_log')
+    logger.set_logger_dir('/scratch/wieschol/seeindark/train_log3')
 
     ds_train = get_train_data()
     ds_test = get_test_data()
 
     return TrainConfig(
-        model=Model(),
+        model=Model(SHAPE, SHAPE),
         data=QueueInput(ds_train),
         callbacks=[
             PeriodicTrigger(ModelSaver(), every_k_epochs=5),
             ScheduledHyperParamSetter(
-                'learning_rate', [(2000, 1e-5)]),
+                'learning_rate', [(2000 // EPOCH_MULTIPLIER, 1e-5)]),
             PeriodicTrigger(VisualizeTestImages(), every_k_epochs=5),
             InferenceRunner(ds_test,
                             ScalarStats(['l1_cost'])),
@@ -156,20 +176,77 @@ def get_config():
     )
 
 
+def apply(model_path, filenames_short, exposure_time_sec):
+    import rawpy
+    import cv2
+    import numpy as np
+    from prepare_sony import pack_raw
+    import glob
+    import tqdm
+
+    if os.path.isfile(filenames_short):
+        filenames_short = [filenames_short]
+    else:
+        filenames_short = glob.glob(filenames_short)
+
+    # assume all images have same shape to avoid multiple loads of the checkpoint
+    short_raw = rawpy.imread(filenames_short[0])
+    short_uint16 = pack_raw(short_raw)
+    short_float = short_uint16.astype(np.float32)
+    short_float = np.maximum(short_float - 512, 0) / (16383 - 512)
+    H, W, _ = short_float.shape
+
+    predict_func = OfflinePredictor(PredictConfig(
+        model=Model(H, W),
+        session_init=get_model_loader(model_path),
+        input_names=['short_exposure'],
+        output_names=['prediction']))
+
+    # apply model to all images
+    for filename_short in tqdm.tqdm(filenames_short):
+        in_exposure_time = float(filename_short.split('_')[-1].replace('s.ARW', ''))
+        factor = exposure_time_sec / in_exposure_time
+
+        short_raw = rawpy.imread(filename_short)
+        short_uint16 = pack_raw(short_raw)
+        short_float = short_uint16.astype(np.float32)
+        short_float = np.maximum(short_float - 512, 0) / (16383 - 512)
+        short_float *= factor
+        pred = predict_func(short_float[None, ...])[0][0, ...]
+        p = np.clip(pred * 255, 0, 255)
+        out_fn = 'outputs/{}-{}-prediction.jpg'.format(os.path.basename(filename_short)[:-4], exposure_time_sec)
+        cv2.imwrite(out_fn, p[:, :, ::-1])
+
+        naive_uint16 = short_raw.postprocess(use_camera_wb=True, half_size=False, no_auto_bright=True, output_bps=16)
+        naive_float = np.float32(naive_uint16 / 65535.0)
+        # naive_float *= factor
+        naive_float *= pred.mean() / naive_float.mean()
+
+        p = np.clip(naive_float * 255, 0, 255)
+        out_fn = 'outputs/{}-{}-noise.jpg'.format(os.path.basename(filename_short)[:-4], exposure_time_sec)
+        cv2.imwrite(out_fn, p[:, :, ::-1])
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', help='comma separated list of GPU(s) to use.')
     parser.add_argument('--load', help='load model')
+    parser.add_argument('--apply', action='store_true')
+    parser.add_argument('--short', type=str, help='path to short exposure file')
+    parser.add_argument('--exposure_time', type=float, help='final exposure time', default=1.)
     args = parser.parse_args()
 
     if args.gpu:
         os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
-    config = get_config()
+    if args.apply:
+        apply(args.load, args.short, args.exposure_time)
+    else:
+        config = get_config()
 
-    if args.load:
-        config.session_init = SaverRestore(args.load)
+        if args.load:
+            config.session_init = SaverRestore(args.load)
 
-    nr_tower = max(get_nr_gpu(), 1)
-    trainer = SyncMultiGPUTrainerParameterServer(nr_tower)
-    launch_train_with_config(config, trainer)
+        nr_tower = max(get_nr_gpu(), 1)
+        trainer = SyncMultiGPUTrainerParameterServer(nr_tower)
+        launch_train_with_config(config, trainer)

@@ -17,15 +17,11 @@ DATA_ROOT_DIR = '/scratch/wieschol/seeindark/dataset/Sony'
 
 # source: https://github.com/cchen156/Learning-to-See-in-the-Dark/blob/0c30dec046a82e1f4d6167eb060a35b3f1625f67/train_Sony.py#L100-L114
 def pack_raw(raw):
-    # pack Bayer image to 4 channels
     im = raw.raw_image_visible
-    # we store uint16 on disc saving space
-    # im = np.maximum(im - 512, 0) / (16383 - 512)  # subtract the black level
     im = np.expand_dims(im, axis=2)
     img_shape = im.shape
     H = img_shape[0]
     W = img_shape[1]
-
     out = np.concatenate((im[0:H:2, 0:W:2, :],
                           im[0:H:2, 1:W:2, :],
                           im[1:H:2, 1:W:2, :],
