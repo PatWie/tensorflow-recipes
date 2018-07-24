@@ -13,27 +13,16 @@ from tensorpack.tfutils.scope_utils import under_name_scope
 enable_argscope_for_module(tf.layers)
 
 """
-Description
+Re-implementation of
+SSH: Single Stage Headless Face Detector
+
+<https://arxiv.org/abs/1708.03979>
 """
 
 BATCH_SIZE = 16
 SHAPE = 28
 CHANNELS = 3
 
-
-def visualize_images(name, imgs):
-    """Generate tensor for TensorBoard (casting, clipping)
-    Args:
-        name: name for visualization operation
-        *imgs: multiple images in *args style
-    Example:
-        visualize_images('viz1', [img1])
-        visualize_images('viz2', [img1, img2, img3])
-    """
-    xy = (tf.concat(imgs, axis=2) + 1.) * 128.
-    xy = tf.cast(tf.clip_by_value(xy, 0, 255), tf.uint8, name=name)
-    tf.summary.image(name, xy, max_outputs=30)
-    return xy.name
 
 
 def upsample(x, factor=2):
@@ -99,6 +88,15 @@ class Model(ModelDesc):
             c53 = tf.layers.conv2d(x, 512, name='conv5_3')
 
             return c43, c53
+
+    @under_name_scope
+    def rpn_reg_loss(self, actual, expected, anchors, epsilon=1e-4):
+        diff = actual - expected
+        x = tf.abs(diff)
+        alpha = tf.less_equal(x, 1.0)
+
+        cost = tf.reduce_sum(expected * alpha * (0.5 * diff * diff) + (1 - alpha) * (x - 0.5)) / tf.reduce_sum(eps + expected)
+        return cost
 
     def build_graph(self, img, input2):
 
