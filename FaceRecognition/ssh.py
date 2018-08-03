@@ -24,7 +24,6 @@ SHAPE = 28
 CHANNELS = 3
 
 
-
 def upsample(x, factor=2):
     _, h, w, _ = x.get_shape().as_list()
     x = tf.image.resize_bilinear(x, [factor * h, factor * w])
@@ -95,7 +94,8 @@ class Model(ModelDesc):
         x = tf.abs(diff)
         alpha = tf.less_equal(x, 1.0)
 
-        cost = tf.reduce_sum(expected * alpha * (0.5 * diff * diff) + (1 - alpha) * (x - 0.5)) / tf.reduce_sum(eps + expected)
+        cost = tf.reduce_sum(expected * alpha * (0.5 * diff * diff) + (1 - alpha) * (x - 0.5))
+        cost /= tf.reduce_sum(eps + expected)
         return cost
 
     def build_graph(self, img, input2):
@@ -103,7 +103,7 @@ class Model(ModelDesc):
         c43, c53 = self.vvg16(img)
 
         p3 = tf.layers.max_pooling2d(c53, 2, 2, name='pool1')
-        p3_logits, p3_reg = self.detection_module(x, 512, 'm3')
+        p3_logits, p3_reg = self.detection_module(p3, 512, 'm3')
 
         p2_logits, p2_reg = self.detection_module(c53, 512, 'm2')
 
@@ -114,7 +114,6 @@ class Model(ModelDesc):
             p1 = tf.add(p1a, p1b)
             p1 = tf.layers.conv2d(p1, 128, kernel_size=3, name='conv_p1_2')
             p1_logits, p1_reg = self.detection_module(p1, 128, 'm1')
-
 
         cost = tf.identity(input1 - input2, name='total_costs')
         summary.add_moving_summary(cost)
