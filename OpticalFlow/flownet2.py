@@ -23,7 +23,7 @@ https://arxiv.org/abs/1612.01925
 This is not an attempt to reproduce the lengthly training protocol,
 but to rely on tensorpack's "OfflinePredictor" for easier inference.
 
-The ported pre-trained Caffe-model is here
+The ported pre-trained Caffe-model are here
 http://files.patwie.com/recipes/models/flownet2-s.npz
 http://files.patwie.com/recipes/models/flownet2-c.npz
 
@@ -89,7 +89,6 @@ if __name__ == '__main__':
     parser.add_argument('--right', help='input', type=str)
     parser.add_argument('--model', help='model', type=str)
     parser.add_argument('--gt', help='ground_truth', type=str, default=None)
-    parser.add_argument('--expect', help='expected_values', type=str, default=None)
     args = parser.parse_args()
 
     if args.gpu:
