@@ -6,6 +6,10 @@ by Ilg et al.
 
 Given two images, the network is trained to predict the optical flow between these images.
 
+<p align="center"> <img src="./preview.jpg" width="100%"> </p>
+
+* Top: both input images from Flying Chairs.
+* Bottom: FlowNet2-C, FlowNet2-S results
 
 
 ### Usage
@@ -14,6 +18,7 @@ Given two images, the network is trained to predict the optical flow between the
 
 ```bash
 wget http://files.patwie.com/recipes/models/flownet2-s.npz
+wget http://files.patwie.com/recipes/models/flownet2-c.npz
 
 ```
 
@@ -27,9 +32,20 @@ Any commercial use of the pre-trained weights requires FlowNet2 authors consent.
 2. Run inference
 
 ```bash
-python python flownet2s.py --gpu 0 \
+python python flownet2.py --gpu 0 \
         --left left_img.ppm \
         --right right_img.ppm \
-        --apply --load flownet2-s.npz
+        --load flownet2-s.npz --model "flownet2-s"
+python python flownet2.py --gpu 0 \
+        --left left_img.ppm \
+        --right right_img.ppm \
+        --load flownet2-c.npz --model "flownet2-c"
 ```
 
+For `FlowNet2-C` you need to compile the operation in user_ops until this [PR](https://github.com/tensorflow/tensorflow/pull/21392) gets merged:
+
+```bash
+cd user_ops
+cmake .
+make
+```
