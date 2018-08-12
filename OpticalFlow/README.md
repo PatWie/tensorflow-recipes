@@ -1,4 +1,6 @@
-## OpticalFlow - FlowNet2
+# OpticalFlow
+
+## FlowNet2
 
 Reproduces
 [FlowNet 2.0: Evolution of Optical Flow Estimation with Deep Networks](https://arxiv.org/abs/1612.01925)
@@ -8,7 +10,7 @@ Given two images, the network is trained to predict the optical flow between the
 
 <p align="center"> <img src="./preview.jpg" width="100%"> </p>
 
-* Top: both input images from Flying Chairs, ground-truth, caffe output
+* Top: both input images from Flying Chairs, ground-truth, Caffe output
 * Bottom: FlowNet2-C, FlowNet2-S, FlowNet2 results (when converted to TensorFlow)
 
 
@@ -53,4 +55,33 @@ For `FlowNet2-C` you need to compile the operation in user_ops until this [PR](h
 cd user_ops
 cmake .
 make
+```
+
+## PWC
+
+Reproduces
+[PWC-Net: CNNs for Optical Flow Using Pyramid, Warping, and Cost Volume](https://arxiv.org/abs/1709.02371)
+by Sun et al.
+
+Given two images, the network is trained to predict the optical flow between these images.
+
+<p align="center"> <img src="./preview-pwc.jpg" width="100%"> </p>
+
+Left to right: Caffe-Version, this re-implementation, ground-truth
+
+1. Download the pre-trained model:
+
+```bash
+wget http://files.patwie.com/recipes/models/pwc.npz
+```
+
+*Note:* Using these weights, (probably) requires to accept the author's license.
+
+2. Run inference
+
+```bash
+python python pwc.py --gpu 0 \
+        --left left_img.ppm \
+        --right right_img.ppm \
+        --load pwc.npz
 ```

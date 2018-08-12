@@ -31,7 +31,7 @@ def channel_norm(x):
     return tf.sqrt(tf.reduce_sum(tf.square(x), keep_dims=True, axis=1))
 
 
-def resample(img, warp):
+def resample(img, warp, clip=True):
     # img, NCHW
     # warp, N2HW
     B = tf.shape(img)[0]
@@ -77,7 +77,20 @@ def resample(img, warp):
 
     # we need to enforce the channel_dim known during compile-time here
     shp = img.shape.as_list()
-    return tf.reshape(tf.transpose(val, [0, 3, 1, 2]), [-1, shp[1], h, w])
+    ans = tf.reshape(val, [-1, h, w, shp[1]])
+    if not clip:
+        z = tf.zeros_like(xf)
+        o = tf.ones_like(xf)
+
+        mask = o
+        mask = tf.where(tf.less(xf, z), z, mask)
+        mask = tf.where(tf.greater(xf, o * tf.cast(w - 1, tf.float32)), z, mask)
+        mask = tf.where(tf.less(yf, z), z, mask)
+        mask = tf.where(tf.greater(yf, o * tf.cast(h - 1, tf.float32)), z, mask)
+        mask = tf.expand_dims(mask, axis=-1)
+        ans *= mask
+    # return mask
+    return tf.transpose(ans, [0, 3, 1, 2])
 
 
 def resize(x, factor=4, mode='bilinear'):

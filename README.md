@@ -4,6 +4,10 @@ Several TensorFlow implementations of recent papers based on the [tensorpack](ht
 
 Unfortunately, there is a difference between *re-implementing* deep-learning papers, and *re-obtaining* the published performance. The latter usually requires tedious hyper-parameter optimization amongst other things like very long training times. Hence, the following implementations have no guarantees to get the published performance. However you can judge this yourself using our pretrained models.
 
+- **[PWC](./OpticalFlow)** (Sun et al., CVPR 2018) [[pdf]](https://arxiv.org/abs/1612.01925) [[model PWC]](http://files.patwie.com/recipes/models/pwc.npz)
+*PWC-Net: CNNs for Optical Flow Using Pyramid, Warping, and Cost Volume*
+    + there is some color bleeding in the predicted flow
+    + just the inference part of PWC
 - **[Learning To See in the Dark](./LearningToSeeInTheDark)** (Chen et al., CVPR 2018) [[pdf]](https://arxiv.org/abs/1805.01934) [[pretrained model]](http://files.patwie.com/recipes/models/seeinthedark.npz)
 *Learning to See in the Dark*
     + the toughest part seems the data pre-processing
@@ -15,11 +19,10 @@ Unfortunately, there is a difference between *re-implementing* deep-learning pap
 - **[EnhanceNet](./EnhanceNet)** (Sajjadi et al., ICCV 2017) [[pdf]](https://arxiv.org/abs/1612.07919) [[pretrained model]](http://files.patwie.com/recipes/models/enet-pat.npy)
 *EnhanceNet: Single Image Super-Resolution Through Automated Texture Synthesis*
     + visually similar performance; seems to produce less artifacts than the author's implementation
-- **[FlowNet2](./OpticalFlow)** (Ilg et al., CVPR 2017) [[pdf]](https://arxiv.org/abs/1612.01925) [[caffe model FlowNet2-S]](http://files.patwie.com/recipes/models/flownet2-s.npz) [[caffe model FlowNet2-C]](http://files.patwie.com/recipes/models/flownet2-c.npz) [[caffe model FlowNet2]](http://files.patwie.com/recipes/models/flownet2.npz)
+- **[FlowNet2](./OpticalFlow)** (Ilg et al., CVPR 2017) [[pdf]](https://arxiv.org/abs/1612.01925) [[model FlowNet2-S]](http://files.patwie.com/recipes/models/flownet2-s.npz) [[model FlowNet2-C]](http://files.patwie.com/recipes/models/flownet2-c.npz) [[model FlowNet2]](http://files.patwie.com/recipes/models/flownet2.npz)
 *FlowNet 2.0: Evolution of Optical Flow Estimation with Deep Networks*
     + just the inference part of FlowNet2-S, FlowNet2-C, FlowNet2
     + please respect the license of the pre-trained weights
-    + during conversion, the performance degraded
 - **[LetThereBeColor](./LetThereBeColor)** (Iizuka et al., SIGGRAPH 2016) [[pdf]](http://hi.cs.waseda.ac.jp/~iizuka/projects/colorization/en/) [[pretrained model]](http://files.patwie.com/recipes/models/let-there-be-color.npy)
 *Let there be Color!: Joint End-to-end Learning of Global and Local Image Priors for Automatic Image Colorization with Simultaneous Classification*
     + slightly worse performance probably due to shorter training time (authors reported 3 weeks; we just trained a few days)
@@ -49,3 +52,6 @@ Unfortunately, there is a difference between *re-implementing* deep-learning pap
 
  I do not judge the papers and methods. Reproducing deep-learning papers with *meaningful* performance is difficult. So there can be some tricks, I missed.
  There is no motivation/time to make them all work perfectly -- *when* possible.
+
+- `model` means a pre-trained model provided by the authors and ported to TensorFlow
+- `pre-trained model` means a model training with the provided script above

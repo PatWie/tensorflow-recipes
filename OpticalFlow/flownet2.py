@@ -11,7 +11,7 @@ import numpy as np
 
 from tensorpack import *
 
-import models
+import flownet_models as models
 
 enable_argscope_for_module(tf.layers)
 
