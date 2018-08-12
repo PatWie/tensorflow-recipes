@@ -101,7 +101,8 @@ def resize(x, factor=4, mode='bilinear'):
     if mode == 'bilinear':
         x = tf.image.resize_bilinear(x, shp, align_corners=True)
     else:
-        x = tf.image.resize_nearest_neighbor(x, shp, align_corners=True)
+        # better approximation of what Caffe is doing
+        x = tf.image.resize_nearest_neighbor(x, shp, align_corners=False)
     # NHWC -> NCHW
     return tf.transpose(x, [0, 3, 1, 2])
 
@@ -174,7 +175,6 @@ class FlowNet2(FlowNetBase):
         with tf.variable_scope('flownet_sd'):
             flownetsd_flow2 = FlowNet2SD().graph_structure(x1x2)
         flownetsd_flow = resize(flownetsd_flow2 / 20., mode='nearest')
-
         norm_flownetsd_flow = channel_norm(flownetsd_flow)
         diff_flownetsd_flow = resample(x2, flownetsd_flow)
         diff_flownetsd_img1 = channel_norm(x1 - diff_flownetsd_flow)
