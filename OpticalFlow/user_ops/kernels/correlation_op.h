@@ -51,7 +51,7 @@ struct parameter {
   int radius;
   int border;
 
-  parameter(int B_, int C_, int W_, int H_) {
+  parameter(int B_, int C_, int H_, int W_) {
     inB = B_;
     inC = C_;
     inH = H_;

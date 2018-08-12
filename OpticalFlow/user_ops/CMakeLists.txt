@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(TFCorrelation)
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/)
 
-find_package(TensorFlow 1.9 EXACT REQUIRED)
+find_package(TensorFlow 1.10 EXACT REQUIRED)
 find_package(CUDA 9.0 EXACT REQUIRED)
 
 # set necessary flags

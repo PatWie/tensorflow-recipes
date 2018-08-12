@@ -56,7 +56,9 @@ To run it on actual data:
 """
 
 
-MODEL_MAP = {'flownet2-s': models.FlowNet2S, 'flownet2-c': models.FlowNet2C}
+MODEL_MAP = {'flownet2-s': models.FlowNet2S,
+             'flownet2-c': models.FlowNet2C,
+             'flownet2': models.FlowNet2}
 
 
 def apply(model_name, model_path, left, right, ground_truth=None):
@@ -78,6 +80,7 @@ def apply(model_name, model_path, left, right, ground_truth=None):
         img = np.concatenate([img, flow.visualize(Flow.read(ground_truth))], axis=1)
 
     cv2.imshow('flow output', img)
+    cv2.imwrite('flownet2_full.jpg', img * 255)
     cv2.waitKey(0)
 
 

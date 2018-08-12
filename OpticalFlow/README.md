@@ -8,8 +8,8 @@ Given two images, the network is trained to predict the optical flow between the
 
 <p align="center"> <img src="./preview.jpg" width="100%"> </p>
 
-* Top: both input images from Flying Chairs.
-* Bottom: FlowNet2-C, FlowNet2-S results
+* Top: both input images from Flying Chairs, ground-truth, caffe output
+* Bottom: FlowNet2-C, FlowNet2-S, FlowNet2 results (when converted to TensorFlow)
 
 
 ### Usage
@@ -19,6 +19,7 @@ Given two images, the network is trained to predict the optical flow between the
 ```bash
 wget http://files.patwie.com/recipes/models/flownet2-s.npz
 wget http://files.patwie.com/recipes/models/flownet2-c.npz
+wget http://files.patwie.com/recipes/models/flownet2.npz
 
 ```
 

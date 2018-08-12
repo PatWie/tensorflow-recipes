@@ -15,10 +15,11 @@ Unfortunately, there is a difference between *re-implementing* deep-learning pap
 - **[EnhanceNet](./EnhanceNet)** (Sajjadi et al., ICCV 2017) [[pdf]](https://arxiv.org/abs/1612.07919) [[pretrained model]](http://files.patwie.com/recipes/models/enet-pat.npy)
 *EnhanceNet: Single Image Super-Resolution Through Automated Texture Synthesis*
     + visually similar performance; seems to produce less artifacts than the author's implementation
-- **[FlowNet2-S/C](./OpticalFlow)** (Ilg et al., CVPR 2017) [[pdf]](https://arxiv.org/abs/1612.01925) [[ported caffe model]](http://files.patwie.com/recipes/models/weights.npz)
+- **[FlowNet2](./OpticalFlow)** (Ilg et al., CVPR 2017) [[pdf]](https://arxiv.org/abs/1612.01925) [[ported caffe model]](http://files.patwie.com/recipes/models/weights.npz)
 *FlowNet 2.0: Evolution of Optical Flow Estimation with Deep Networks*
-    + just the inference part of FlowNet2-S and FlowNet2-C
+    + just the inference part of FlowNet2-S, FlowNet2-C, FlowNet2
     + please respect the license of the pre-trained weights
+    + during conversion, the performance degraded
 - **[LetThereBeColor](./LetThereBeColor)** (Iizuka et al., SIGGRAPH 2016) [[pdf]](http://hi.cs.waseda.ac.jp/~iizuka/projects/colorization/en/) [[pretrained model]](http://files.patwie.com/recipes/models/let-there-be-color.npy)
 *Let there be Color!: Joint End-to-end Learning of Global and Local Image Priors for Automatic Image Colorization with Simultaneous Classification*
     + slightly worse performance probably due to shorter training time (authors reported 3 weeks; we just trained a few days)
