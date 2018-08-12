@@ -26,6 +26,7 @@ but to rely on tensorpack's "OfflinePredictor" for easier inference.
 The ported pre-trained Caffe-model are here
 http://files.patwie.com/recipes/models/flownet2-s.npz
 http://files.patwie.com/recipes/models/flownet2-c.npz
+http://files.patwie.com/recipes/models/flownet2.npz
 
 It has the original license:
 
@@ -80,7 +81,6 @@ def apply(model_name, model_path, left, right, ground_truth=None):
         img = np.concatenate([img, flow.visualize(Flow.read(ground_truth))], axis=1)
 
     cv2.imshow('flow output', img)
-    cv2.imwrite('flownet2_full.jpg', img * 255)
     cv2.waitKey(0)
 
 
