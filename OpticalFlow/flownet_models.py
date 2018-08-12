@@ -358,7 +358,7 @@ class FlowNet2C(FlowNetBase):
                                max_displacement=20,
                                stride_1=1,
                                stride_2=2,
-                               pad=20)
+                               pad=20, data_format='NCHW')
             corr = tf.nn.leaky_relu(corr, 0.1)
 
             conv_redir = tf.layers.conv2d(conv3a, 32, kernel_size=1, strides=1, name='conv_redir')

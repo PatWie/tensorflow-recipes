@@ -49,7 +49,7 @@ class PWCModel(ModelDesc):
 
         def corr_func(x, y):
             return correlation(x, y, kernel_size=1, max_displacement=4,
-                               stride_1=1, stride_2=1, pad=4)
+                               stride_1=1, stride_2=1, pad=4, data_format='NCHW')
 
         with argscope([tf.layers.conv2d], activation=lambda x: tf.nn.leaky_relu(x, 0.1),
                       padding='valid', strides=1, kernel_size=3,
