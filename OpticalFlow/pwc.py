@@ -77,7 +77,8 @@ class PWCModel(ModelDesc):
                     y = tf.layers.conv2d(pad(x, 1), nf, name='conv%i_%i' % (stage, k), strides=1)
                     x = tf.concat([y, x], axis=1)
 
-                flow = tf.layers.conv2d(pad(x, 1), 2, name='predict_flow%i' % (stage), strides=1, activation=tf.identity)
+                flow = tf.layers.conv2d(pad(x, 1), 2, name='predict_flow%i' % (stage), strides=1,
+                                        activation=tf.identity)
                 if stage == 2:
                     break
                 flow_up = tf.layers.conv2d_transpose(flow, 2, name='up_flow%i' % (stage))
@@ -122,8 +123,8 @@ def apply(model_path, left, right):
 
     output = predict_func(left, right)[0].transpose(0, 2, 3, 1)[0]
 
-    dx = cv2.resize(output[:, :, 0],(w_in, h_in)) * w_in / float(w)
-    dy = cv2.resize(output[:, :, 1],(w_in, h_in)) * h_in / float(h)
+    dx = cv2.resize(output[:, :, 0], (w_in, h_in)) * w_in / float(w)
+    dy = cv2.resize(output[:, :, 1], (w_in, h_in)) * h_in / float(h)
     output = np.dstack((dx, dy))
 
     flow = Flow()
