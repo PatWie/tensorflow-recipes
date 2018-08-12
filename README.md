@@ -15,7 +15,7 @@ Unfortunately, there is a difference between *re-implementing* deep-learning pap
 - **[EnhanceNet](./EnhanceNet)** (Sajjadi et al., ICCV 2017) [[pdf]](https://arxiv.org/abs/1612.07919) [[pretrained model]](http://files.patwie.com/recipes/models/enet-pat.npy)
 *EnhanceNet: Single Image Super-Resolution Through Automated Texture Synthesis*
     + visually similar performance; seems to produce less artifacts than the author's implementation
-- **[FlowNet2](./OpticalFlow)** (Ilg et al., CVPR 2017) [[pdf]](https://arxiv.org/abs/1612.01925) [[ported caffe model]](http://files.patwie.com/recipes/models/weights.npz)
+- **[FlowNet2](./OpticalFlow)** (Ilg et al., CVPR 2017) [[pdf]](https://arxiv.org/abs/1612.01925) [[caffe model FlowNet2-S]](http://files.patwie.com/recipes/models/flownet2-s.npz) [[caffe model FlowNet2-C]](http://files.patwie.com/recipes/models/flownet2-c.npz) [[caffe model FlowNet2]](http://files.patwie.com/recipes/models/flownet2.npz)
 *FlowNet 2.0: Evolution of Optical Flow Estimation with Deep Networks*
     + just the inference part of FlowNet2-S, FlowNet2-C, FlowNet2
     + please respect the license of the pre-trained weights
