@@ -1,6 +1,7 @@
 # Patrick Wieschollek, <mail@patwie.com>
 # FindTENSORFLOW
 # -------------
+# https://github.com/PatWie/tensorflow-cmake/blob/master/cmake/modules/FindTensorFlow.cmake
 #
 # Find TensorFlow library and includes
 #
@@ -145,6 +146,20 @@ macro(add_tensorflow_operation op_name)
   target_link_libraries(${op_name}_op LINK_PUBLIC ${op_name}_op_cu ${TensorFlow_LIBRARY})
 endmacro()
 
+
+macro(add_tensorflow_gpu_operation op_name)
+  message(STATUS "will build custom TensorFlow operation \"${op_name}\"")
+
+  cuda_add_library(${op_name}_op_cu SHARED kernels/${op_name}_kernel.cu)
+  set_target_properties(${op_name}_op_cu PROPERTIES PREFIX "")
+
+  add_library(${op_name}_op SHARED kernels/${op_name}_op.cc kernels/${op_name}_kernel.cc ops/${op_name}.cc )
+
+  set_target_properties(${op_name}_op PROPERTIES PREFIX "")
+  set_target_properties(${op_name}_op PROPERTIES COMPILE_FLAGS "-DGOOGLE_CUDA")
+  target_link_libraries(${op_name}_op LINK_PUBLIC ${op_name}_op_cu ${TensorFlow_LIBRARY})
+endmacro()
+
 # simplify TensorFlow dependencies
 add_library(TensorFlow_DEP INTERFACE)
 TARGET_INCLUDE_DIRECTORIES(TensorFlow_DEP INTERFACE ${TensorFlow_SOURCE_DIR})
@@ -167,5 +182,4 @@ find_package_handle_standard_args(
 mark_as_advanced(TF_INFORMATION_STRING TF_VERSION TF_VERSION_MAJOR TF_VERSION_MINOR TF_VERSION TF_ABI
                  TF_INCLUDE_DIR TF_LIBRARY
                  TensorFlow_C_LIBRARY TensorFlow_LIBRARY TensorFlow_SOURCE_DIR TensorFlow_INCLUDE_DIR TensorFlow_ABI)
-
 

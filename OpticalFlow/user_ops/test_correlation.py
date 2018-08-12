@@ -1,80 +1,157 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-# Author: Patrick Wieschollek <mail@patwie.com>, 2018
+# Author: Patrick Wieschollek <mail@patwie.com>
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import numpy as np
-import tensorflow as tf
 
-from __init__ import correlation
-
-np.random.seed(42)
-tf.set_random_seed(42)
-
-
-class CorrelationTest(tf.test.TestCase):
-
-    def forward(self):
-        values = np.load('forward.npy')
-
-        input_a_op = tf.convert_to_tensor(values.item()['input_a'])
-        input_b_op = tf.convert_to_tensor(values.item()['input_b'])
-
-        kernel_size = values.item()['kernel_size']
-        max_displacement = values.item()['max_displacement']
-        stride_1 = values.item()['stride_1']
-        stride_2 = values.item()['stride_2']
-        pad = values.item()['pad_size']
-
-        print('kernel_size', kernel_size)
-        print("#+#+#+#+#+#+##+#+#+#")
-
-        with self.test_session(use_gpu=True, force_gpu=True) as sess:
-            actual_op = correlation(input_a_op, input_b_op,
-                                    kernel_size=kernel_size,
-                                    max_displacement=max_displacement,
-                                    stride_1=stride_1,
-                                    stride_2=stride_2,
-                                    pad=pad)
-            actual = sess.run(actual_op)
-
-            self.assertEqual(actual.shape, values.item()['expected'].shape)
-            self.assertAllClose(actual, values.item()['expected'])
-
-    def test_forward_float(self):
-        self.forward()
-
-    def backward(self):
-        values = np.load('forward.npy')
-
-        input_a_op = tf.convert_to_tensor(values.item()['input_a'])
-        input_b_op = tf.convert_to_tensor(values.item()['input_b'])
-
-        kernel_size = values.item()['kernel_size']
-        max_displacement = values.item()['max_displacement']
-        stride_1 = values.item()['stride_1']
-        stride_2 = values.item()['stride_2']
-        pad = values.item()['pad_size']
-
-        with self.test_session(use_gpu=True, force_gpu=True) as sess:
-            actual_op = correlation(input_a_op, input_b_op,
-                                    kernel_size, max_displacement, stride_1, stride_2, pad)
-            actual = sess.run(actual_op)
-
-            err_a = tf.test.compute_gradient_error(
-                input_a_op, values.item()['input_a'].shape,
-                actual_op, actual.shape)
-
-            self.assertLess(err_a, 1e-2)
-
-            err_b = tf.test.compute_gradient_error(
-                input_b_op, values.item()['input_b'].shape,
-                actual_op, actual.shape)
-
-            self.assertLess(err_b, 1e-2)
-
-    # def test_backward_float(self):
-    #     self.backward()
+from __init__ import correlation_cost
+from tensorflow.python.framework import dtypes
+from tensorflow.python.ops import array_ops
+from tensorflow.python.framework import ops
+from tensorflow.python.platform import test
+from tensorflow.python.framework import constant_op
 
 
-if __name__ == '__main__':
-    tf.test.main()
+class CorrelationCostTest(test.TestCase):
+
+    def _forward(self, input_a, input_b,
+                 kernel_size,
+                 max_displacement,
+                 stride_1,
+                 stride_2,
+                 pad,
+                 data_format,
+                 use_gpu=False):
+        with self.test_session(use_gpu=use_gpu, force_gpu=use_gpu) as sess:
+
+            input_a_op = ops.convert_to_tensor(input_a)
+            input_b_op = ops.convert_to_tensor(input_b)
+
+            kernel_size = 1
+            max_displacement = 2
+            stride_1 = 1
+            stride_2 = 2
+            pad = 4
+
+            call_op = correlation_cost
+            actual_op = call_op(input_a_op, input_b_op,
+                                kernel_size=kernel_size,
+                                max_displacement=max_displacement,
+                                stride_1=stride_1,
+                                stride_2=stride_2,
+                                pad=pad,
+                                data_format=data_format)
+
+            return sess.run(actual_op)
+
+    def _forward_both(self, shape, data_format='NCHW', dtype=dtypes.float32):
+        # some shape to test uneven number of channels
+        input_a = np.random.randn(*shape)
+        input_b = np.random.randn(*shape)
+
+        input_a = constant_op.constant(input_a, dtype=dtype)
+        input_b = constant_op.constant(input_b, dtype=dtype)
+
+        kernel_size = 1
+        max_displacement = 2
+        stride_1 = 1
+        stride_2 = 2
+        pad = 4
+
+        if data_format == 'NHWC':
+            input_a = array_ops.transpose(input_a, [0, 2, 3, 1])
+            input_b = array_ops.transpose(input_b, [0, 2, 3, 1])
+
+        actual_cpu = self._forward(input_a, input_b,
+                                   kernel_size=kernel_size,
+                                   max_displacement=max_displacement,
+                                   stride_1=stride_1,
+                                   stride_2=stride_2,
+                                   pad=pad,
+                                   data_format=data_format,
+                                   use_gpu=False)
+
+        actual_gpu = self._forward(input_a, input_b,
+                                   kernel_size=kernel_size,
+                                   max_displacement=max_displacement,
+                                   stride_1=stride_1,
+                                   stride_2=stride_2,
+                                   pad=pad,
+                                   data_format=data_format,
+                                   use_gpu=True)
+
+        self.assertEqual(actual_cpu.shape, actual_gpu.shape)
+        self.assertAllClose(actual_cpu, actual_gpu)
+
+    def _gradients(self, data_format='NCHW', use_gpu=False):
+
+        batch, channels, height, width = 2, 3, 5, 6
+        input_a = np.random.randn(batch, channels, height, width)
+        input_b = np.random.randn(batch, channels, height, width)
+
+        kernel_size = 1
+        max_displacement = 2
+        stride_1 = 1
+        stride_2 = 2
+        pad = 4
+
+        if data_format == 'NHWC':
+            input_a = input_a.transpose(0, 2, 3, 1)
+            input_b = input_b.transpose(0, 2, 3, 1)
+
+        with self.test_session(use_gpu=use_gpu, force_gpu=use_gpu):
+
+            input_a_op = ops.convert_to_tensor(input_a, dtype=dtypes.float32)
+            input_b_op = ops.convert_to_tensor(input_b, dtype=dtypes.float32)
+
+            call_op = correlation_cost
+            actual_op = call_op(input_a_op, input_b_op,
+                                kernel_size=kernel_size,
+                                max_displacement=max_displacement,
+                                stride_1=stride_1,
+                                stride_2=stride_2,
+                                pad=pad,
+                                data_format=data_format)
+
+            err_a = test.compute_gradient_error(
+                [input_a_op, input_b_op],
+                [input_a.shape, input_b.shape],
+                actual_op, actual_op.shape.as_list())
+
+            self.assertLess(err_a, 1e-4)
+
+    def testForwardSameFloatLarge(self):
+        # to test channel_num larger than 1 warp
+        self._forward_both((1, 65, 3, 4), data_format='NCHW', dtype=dtypes.float32)
+        self._forward_both((1, 65, 3, 4), data_format='NHWC', dtype=dtypes.float32)
+
+    def testForwardSameDoubleLarge(self):
+        # to test channel_num larger than 1 warp
+        self._forward_both((1, 65, 3, 4), data_format='NCHW', dtype=dtypes.float64)
+        self._forward_both((1, 65, 3, 4), data_format='NHWC', dtype=dtypes.float64)
+
+    def testForwardSameFloatSmall(self):
+        # to test channel_num smaller than 1 warp
+        self._forward_both((1, 15, 3, 4), data_format='NCHW', dtype=dtypes.float32)
+        self._forward_both((1, 15, 3, 4), data_format='NHWC', dtype=dtypes.float32)
+
+    def testForwardSameDoubleSmall(self):
+        # to test channel_num smaller than 1 warp
+        self._forward_both((1, 15, 3, 4), data_format='NCHW', dtype=dtypes.float64)
+        self._forward_both((1, 15, 3, 4), data_format='NHWC', dtype=dtypes.float64)
+
+    def testBackwardNCHW(self):
+        self._gradients(data_format='NCHW', use_gpu=False)
+        self._gradients(data_format='NCHW', use_gpu=True)
+
+    def testBackwardNHWC(self):
+        self._gradients(data_format='NHWC', use_gpu=False)
+        self._gradients(data_format='NHWC', use_gpu=True)
+
+
+if __name__ == "__main__":
+    test.main()
