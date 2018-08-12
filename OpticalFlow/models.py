@@ -151,11 +151,6 @@ class FlowNet2(FlowNetBase):
         norm_diff_img0 = channel_norm(x1 - resampled_img1)
 
         # FlowNet-S
-        print(resampled_img1.shape)
-        print(resampled_img1.shape)
-        print(resampled_img1.shape)
-        print(resampled_img1.shape)
-        print(resampled_img1.shape)
         concat1 = tf.concat([x1x2, resampled_img1, flownetc_flow / 20., norm_diff_img0], axis=1)
         with tf.variable_scope('flownet_s1'):
             flownets1_flow2 = FlowNet2S().graph_structure(concat1, preprocess=False)

@@ -41,6 +41,10 @@ python python flownet2.py --gpu 0 \
         --left left_img.ppm \
         --right right_img.ppm \
         --load flownet2-c.npz --model "flownet2-c"
+python python flownet2.py --gpu 0 \
+        --left left_img.ppm \
+        --right right_img.ppm \
+        --load flownet2.npz --model "flownet2"
 ```
 
 For `FlowNet2-C` you need to compile the operation in user_ops until this [PR](https://github.com/tensorflow/tensorflow/pull/21392) gets merged:
