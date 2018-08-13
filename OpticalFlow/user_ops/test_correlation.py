@@ -25,12 +25,9 @@ def python_correlation(A, B, kernel_size, max_displacement, stride_1, stride_2, 
 
     b, c, h, w = A.shape.as_list()
 
-    r = max_displacement / stride_2
-    d = 2 * r + 1
     border = max_displacement
     dr = int(max_displacement / stride_2)
 
-    Cout = int(d * d)
     Hout = int(np.ceil((h + 2 * (pad - border)) / stride_1))
     Wout = int(np.ceil((w + 2 * (pad - border)) / stride_1))
 
@@ -48,12 +45,12 @@ def python_correlation(A, B, kernel_size, max_displacement, stride_1, stride_2, 
                 for w in range(0, Wout):
                     w1 = int(w * stride_1 + max_displacement)
 
-                    patchA = Apad[:, :, h1:h1+1, w1:w1+1]
+                    patchA = Apad[:, :, h1:h1 + 1, w1:w1 + 1]
 
                     w2 = w1 + ti * stride_2
                     h2 = h1 + tj * stride_2
 
-                    patchB = Bpad[:, :, h2:h2+1, w2:w2+1]
+                    patchB = Bpad[:, :, h2:h2 + 1, w2:w2 + 1]
 
                     ans = tf.reduce_mean(patchA * patchB, axis=[1], keepdims=True)
                     res_w.append(ans)
@@ -144,7 +141,6 @@ class CorrelationCostTest(test.TestCase):
 
             self.assertEqual(actual_cpu.shape, actual_python.shape)
             self.assertAllClose(actual_cpu, actual_python)
-
 
         self.assertEqual(actual_cpu.shape, actual_gpu.shape)
         self.assertAllClose(actual_cpu, actual_gpu)
