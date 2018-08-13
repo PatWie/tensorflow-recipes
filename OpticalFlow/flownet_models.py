@@ -64,10 +64,10 @@ def resample(img, warp, clip=True):
 
     batch_ids = tf.tile(tf.expand_dims(tf.expand_dims(tf.range(B), axis=-1), axis=-1), [1, h, w])
 
-    def get(y, x):
+    def get(y, x, flat=img_flat):
         idx = tf.reshape(batch_ids * h * w + y * w + x, [-1])
         idx = tf.cast(idx, tf.int32)
-        return tf.gather(img_flat, idx)
+        return tf.gather(flat, idx)
 
     val = tf.zeros_like(alpha)
     val += (1 - alpha) * (1 - beta) * tf.reshape(get(yT, xL), [-1, h, w, c])
@@ -79,15 +79,34 @@ def resample(img, warp, clip=True):
     shp = img.shape.as_list()
     ans = tf.reshape(val, [-1, h, w, shp[1]])
     if not clip:
-        z = tf.zeros_like(xf)
-        o = tf.ones_like(xf)
+        mask_flat = img_flat * 0 + 1.
 
-        mask = o
-        mask = tf.where(tf.less(xf, z), z, mask)
-        mask = tf.where(tf.greater(xf, o * tf.cast(w - 1, tf.float32)), z, mask)
-        mask = tf.where(tf.less(yf, z), z, mask)
-        mask = tf.where(tf.greater(yf, o * tf.cast(h - 1, tf.float32)), z, mask)
-        mask = tf.expand_dims(mask, axis=-1)
+        # warp mask
+        mask = tf.zeros_like(alpha)
+        mask += (1 - alpha) * (1 - beta) * tf.reshape(get(yT, xL, mask_flat), [-1, h, w, c])
+        mask += (0 + alpha) * (1 - beta) * tf.reshape(get(yT, xR, mask_flat), [-1, h, w, c])
+        mask += (1 - alpha) * (0 + beta) * tf.reshape(get(yB, xL, mask_flat), [-1, h, w, c])
+        mask += (0 + alpha) * (0 + beta) * tf.reshape(get(yB, xR, mask_flat), [-1, h, w, c])
+
+        z = tf.zeros_like(mask)
+        o = tf.ones_like(mask)
+
+        xfe1 = tf.expand_dims(tf.floor(xf) + 1, axis=-1)
+        yfe1 = tf.expand_dims(tf.floor(yf) + 1, axis=-1)
+        xfe0 = tf.expand_dims(tf.floor(xf), axis=-1)
+        yfe0 = tf.expand_dims(tf.floor(yf), axis=-1)
+        # x + dx < 0 --> 0
+        mask = tf.where(tf.less(xfe0, z), z, mask)
+        # x + dx > w - 1 --> 0
+        mask = tf.where(tf.greater(xfe1, o * tf.cast(w - 1, tf.float32)), z, mask)
+        # y + dy < 0 --> 0
+        mask = tf.where(tf.less(yfe0, z), z, mask)
+        # y + dy > h - 1 --> 0
+        mask = tf.where(tf.greater(yfe1, o * tf.cast(h - 1, tf.float32)), z, mask)
+
+        # filter mask
+        mask = tf.where(tf.less(mask, 0.9999 * o), z, mask)
+        mask = tf.where(tf.greater(mask, z), o, mask)
         ans *= mask
     # return mask
     return tf.transpose(ans, [0, 3, 1, 2])
