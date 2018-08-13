@@ -9,11 +9,60 @@ from __future__ import print_function
 import numpy as np
 
 from __init__ import correlation_cost
+import tensorflow as tf
 from tensorflow.python.framework import dtypes
 from tensorflow.python.ops import array_ops
 from tensorflow.python.framework import ops
 from tensorflow.python.platform import test
 from tensorflow.python.framework import constant_op
+
+
+def python_correlation(A, B, kernel_size, max_displacement, stride_1, stride_2, pad, data_format):
+    """ This is a fallback option for the correlation cost layer
+    """
+    assert kernel_size == 1
+    assert data_format == 'NCHW'
+
+    b, c, h, w = A.shape.as_list()
+
+    r = max_displacement / stride_2
+    d = 2 * r + 1
+    border = max_displacement
+    dr = int(max_displacement / stride_2)
+
+    Cout = int(d * d)
+    Hout = int(np.ceil((h + 2 * (pad - border)) / stride_1))
+    Wout = int(np.ceil((w + 2 * (pad - border)) / stride_1))
+
+    Apad = tf.pad(A, [[0, 0], [0, 0], [pad, pad], [pad, pad]])
+    Bpad = tf.pad(B, [[0, 0], [0, 0], [pad, pad], [pad, pad]])
+
+    res = []
+
+    for tj in range(-dr, dr + 1):
+        for ti in range(-dr, dr + 1):
+            res_h = []
+            for h in range(0, Hout):
+                h1 = int(h * stride_1 + max_displacement)
+                res_w = []
+                for w in range(0, Wout):
+                    w1 = int(w * stride_1 + max_displacement)
+
+                    patchA = Apad[:, :, h1:h1+1, w1:w1+1]
+
+                    w2 = w1 + ti * stride_2
+                    h2 = h1 + tj * stride_2
+
+                    patchB = Bpad[:, :, h2:h2+1, w2:w2+1]
+
+                    ans = tf.reduce_mean(patchA * patchB, axis=[1], keepdims=True)
+                    res_w.append(ans)
+
+                res_h.append(tf.concat(res_w, axis=3))
+            res.append(tf.concat(res_h, axis=2))
+    res = tf.concat(res, axis=1)
+    with tf.Session() as sess:
+        return sess.run(res)
 
 
 class CorrelationCostTest(test.TestCase):
@@ -82,7 +131,20 @@ class CorrelationCostTest(test.TestCase):
                                    stride_2=stride_2,
                                    pad=pad,
                                    data_format=data_format,
-                                   use_gpu=True)
+                                   use_gpu=False)
+
+        if data_format == 'NCHW':
+            actual_python = python_correlation(input_a, input_b,
+                                               kernel_size=kernel_size,
+                                               max_displacement=max_displacement,
+                                               stride_1=stride_1,
+                                               stride_2=stride_2,
+                                               pad=pad,
+                                               data_format=data_format)
+
+            self.assertEqual(actual_cpu.shape, actual_python.shape)
+            self.assertAllClose(actual_cpu, actual_python)
+
 
         self.assertEqual(actual_cpu.shape, actual_gpu.shape)
         self.assertAllClose(actual_cpu, actual_gpu)
