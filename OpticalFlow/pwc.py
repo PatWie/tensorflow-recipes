@@ -47,80 +47,127 @@ def resample(img, flow):
     flo: [B, 2, H, W] flow
 
     """
+
+    def sample(img, coords):
+        """
+        Args:
+            img: bxhxwxc
+            coords: bxh2xw2x2. each coordinate is (y, x) integer.
+                Out of boundary coordinates will be clipped.
+        Return:
+            bxh2xw2xc image
+        """
+        shape = img.get_shape().as_list()[1:]   # h, w, c
+        batch = tf.shape(img)[0]
+        shape2 = coords.get_shape().as_list()[1:3]  # h2, w2
+        assert None not in shape2, coords.get_shape()
+        max_coor = tf.constant([shape[0] - 1, shape[1] - 1], dtype=tf.float32)
+
+        coords = tf.clip_by_value(coords, 0., max_coor)  # borderMode==repeat
+        coords = tf.to_int32(coords)
+
+        batch_index = tf.range(batch, dtype=tf.int32)
+        batch_index = tf.reshape(batch_index, [-1, 1, 1, 1])
+        batch_index = tf.tile(batch_index, [1, shape2[0], shape2[1], 1])    # bxh2xw2x1
+        indices = tf.concat([batch_index, coords], axis=3)  # bxh2xw2x3
+        sampled = tf.gather_nd(img, indices)
+        return sampled
+
+    def ImageSample(inputs, borderMode='repeat'):
+        """
+        Sample the images using the given coordinates, by bilinear interpolation.
+        This was described in the paper:
+        `Spatial Transformer Networks <http://arxiv.org/abs/1506.02025>`_.
+
+        Args:
+            inputs (list): [images, coords]. images has shape NHWC.
+                coords has shape (N, H', W', 2), where each pair of the last dimension is a (y, x) real-value
+                coordinate.
+            borderMode: either "repeat" or "constant" (zero-filled)
+
+        Returns:
+            tf.Tensor: a tensor named ``output`` of shape (N, H', W', C).
+        """
+        image, mapping = inputs
+        assert image.get_shape().ndims == 4 and mapping.get_shape().ndims == 4
+        input_shape = image.get_shape().as_list()[1:]
+        assert None not in input_shape, \
+            "Images in ImageSample layer must have fully-defined shape"
+        assert borderMode in ['repeat', 'constant']
+
+        orig_mapping = mapping
+        mapping = tf.maximum(mapping, 0.0)
+        lcoor = tf.floor(mapping)
+        ucoor = lcoor + 1
+
+        diff = mapping - lcoor
+        neg_diff = 1.0 - diff  # bxh2xw2x2
+
+        lcoory, lcoorx = tf.split(lcoor, 2, 3)
+        ucoory, ucoorx = tf.split(ucoor, 2, 3)
+
+        lyux = tf.concat([lcoory, ucoorx], 3)
+        uylx = tf.concat([ucoory, lcoorx], 3)
+
+        diffy, diffx = tf.split(diff, 2, 3)
+        neg_diffy, neg_diffx = tf.split(neg_diff, 2, 3)
+
+        ret = tf.add_n([sample(image, lcoor) * neg_diffx * neg_diffy,
+                        sample(image, ucoor) * diffx * diffy,
+                        sample(image, lyux) * neg_diffy * diffx,
+                        sample(image, uylx) * diffy * neg_diffx], name='sampled')
+        if borderMode == 'constant':
+            max_coor = tf.constant([input_shape[0] - 1, input_shape[1] - 1], dtype=tf.float32)
+            mask = tf.greater_equal(orig_mapping, 0.5)
+            mask2 = tf.less_equal(orig_mapping, max_coor+0.5)
+            mask = tf.logical_and(mask, mask2)  # bxh2xw2x2
+            mask = tf.reduce_all(mask, [3])  # bxh2xw2 boolean
+            mask = tf.expand_dims(mask, 3)
+            ret = ret * tf.cast(mask, tf.float32)
+        return tf.identity(ret, name='output')
+
     B, c, h, w = [tf.shape(img)[i] for i in range(4)]
 
     img_flat = tf.reshape(tf.transpose(img, [0, 2, 3, 1]), [-1, c])
 
-    dx = flow[:, 0:1, :, :]
-    dy = flow[:, 1:, :, :]
-
     xf = tf.reshape(tf.tile(tf.range(w), [h]), [h, w])
     yf = tf.transpose(tf.reshape(tf.tile(tf.range(h), [w]), [w, h]), [1, 0])
+    grid = tf.stack([yf, xf], axis=0)
+    grid = tf.expand_dims(grid, axis=0)
+    grid = tf.cast(grid, flow.dtype)
 
-    xf = tf.cast(xf, dx.dtype)
-    yf = tf.cast(yf, dy.dtype)
+    vgrid = grid + tf.reverse(flow, axis=[1])
+    shp2 = tf.to_float(tf.stack([h, w]))
+    vgrid = vgrid * 2.0 / tf.reshape(shp2 - 1., [1, 2, 1, 1]) - 1.
 
-    xf = xf + dx
-    yf = yf + dy
+    def interpolate(x, start, end):
+        return (x + 1) * (end - start) / 2. + start
 
-    alpha = tf.transpose(xf - tf.floor(xf), [0, 2, 3, 1])
-    beta = tf.transpose(yf - tf.floor(yf), [0, 2, 3, 1])
+    # start = tf.constant([0.5, 0.5], dtype=tf.float32)
+    # end = tf.constant([int(h) - 0.5, int(w) - 0.5], dtype=tf.float32)
+    start = tf.constant([0.5, 0.5], dtype=tf.float32)
+    end = tf.stack([tf.cast(h, tf.float32) - 0.5, tf.cast(w, tf.float32) - 0.5], axis=0)
 
-    # https://www.tensorflow.org/api_docs/python/tf/gather
-    # On GPU, if an out of bound index is found, a 0 is stored in the corresponding output value.
-    # no clipping here
-    xL = tf.cast(tf.floor(xf), dtype=tf.int32)
-    xR = tf.cast(tf.floor(xf) + 1, dtype=tf.int32)
-    yT = tf.cast(tf.floor(yf), dtype=tf.int32)
-    yB = tf.cast(tf.floor(yf) + 1, dtype=tf.int32)
+    coords = interpolate(vgrid, tf.reshape(start, [1, 2, 1, 1]), tf.reshape(end, [1, 2, 1, 1]))
+    coords = coords - 0.5
 
-    batch_ids = tf.tile(tf.expand_dims(tf.expand_dims(tf.range(B), axis=-1), axis=-1), [1, h, w])
-
-    def bilinear_interpolate(flat):
-
-        def get(y, x):
-            idx = tf.reshape(batch_ids * h * w + y * w + x, [-1])
-            idx = tf.cast(idx, tf.int32)
-            return tf.gather(flat, idx)
-
-        val = tf.zeros_like(alpha)
-        val += (1 - alpha) * (1 - beta) * tf.reshape(get(yT, xL), [-1, h, w, c])
-        val += (0 + alpha) * (1 - beta) * tf.reshape(get(yT, xR), [-1, h, w, c])
-        val += (1 - alpha) * (0 + beta) * tf.reshape(get(yB, xL), [-1, h, w, c])
-        val += (0 + alpha) * (0 + beta) * tf.reshape(get(yB, xR), [-1, h, w, c])
-        return val
-
-    val = bilinear_interpolate(img_flat)
-
-    # we need to enforce the channel_dim known during compile-time here
-    shp = img.shape.as_list()
-    ans = tf.reshape(val, [-1, h, w, shp[1]])
-
-    # same for mask (NCHW --> NHWC)
-    mask = tf.transpose(img, [0, 2, 3, 1]) * 0 + 1
-
-    mask_flat = tf.reshape(mask, [-1, c])
-    mask = bilinear_interpolate(mask_flat)
-
-    # vanish mask entries which are warped out-of the image area (we clipe the coordinates)
-    ans = tf.transpose(ans, [0, 3, 1, 2])
-    mask = tf.transpose(mask, [0, 3, 1, 2])
-    z = tf.zeros_like(mask)
-    o = tf.ones_like(mask)
-
-    # filter mask
-    mask = tf.where(tf.less(mask, 0.9999 * o), z, mask)
-    mask = tf.where(tf.greater(mask, z), o, mask)
-
-    # return mask
-    return ans * mask
+    img_trans = tf.transpose(img, [0, 2, 3, 1])
+    coords = tf.transpose(coords, [0, 2, 3, 1])
+    output = ImageSample([img_trans, coords], borderMode='constant')
+    ans = tf.transpose(output, [0, 3, 1, 2])
+    return ans
 
 
 class PWCModel(ModelDesc):
 
+    def __init__(self, batch=None, height=None, width=None):
+        self.batch = batch
+        self.height = height
+        self.width = width
+
     def inputs(self):
-        return [tf.placeholder(tf.float32, (None, CHANNELS, None, None), 'left'),
-                tf.placeholder(tf.float32, (None, CHANNELS, None, None), 'right')]
+        return [tf.placeholder(tf.float32, (None, CHANNELS, self.height, self.width), 'left'),
+                tf.placeholder(tf.float32, (None, CHANNELS, self.height, self.width), 'right')]
 
     def build_graph(self, im1, im2):
 
@@ -193,7 +240,7 @@ def apply(model_path, left, right):
     right = cv2.resize(right, (w, h)).transpose(2, 0, 1)[None, ...]
 
     predict_func = OfflinePredictor(PredictConfig(
-        model=PWCModel(),
+        model=PWCModel(batch=1, height=h, width=w),
         session_init=get_model_loader(model_path),
         input_names=['left', 'right'],
         output_names=['prediction']))
