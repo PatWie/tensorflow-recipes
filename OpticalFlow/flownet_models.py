@@ -109,6 +109,14 @@ def resize(x, factor=4, mode='bilinear'):
     return tf.transpose(x, [0, 3, 1, 2])
 
 
+def endpoint_error(gt, pred):
+  with tf.name_scope('endpoint_error'):
+    sq_diff = tf.squared_difference(gt, pred)
+    ret = tf.reduce_sum(sq_diff, 1, keepdims=True)
+    ret = tf.sqrt(ret)
+    return tf.reduce_mean(ret)
+
+
 class FlowNetBase(ModelDesc):
     def __init__(self, height=None, width=None, channels=3):
         self.height = height
@@ -117,12 +125,13 @@ class FlowNetBase(ModelDesc):
 
     def inputs(self):
         return [tf.placeholder(tf.float32, (1, self.channels, self.height, self.width), 'left'),
-                tf.placeholder(tf.float32, (1, self.channels, self.height, self.width), 'right')]
+                tf.placeholder(tf.float32, (1, self.channels, self.height, self.width), 'right'),
+                tf.placeholder(tf.float32, (1, 2, self.height, self.width), 'gt_flow')]
 
     def graph_structure(self, x):
         raise NotImplementedError()
 
-    def build_graph(self, left, right):
+    def build_graph(self, left, right, gt_flow):
         x = tf.stack([left, right], axis=2)
         rgb_mean = tf.reduce_mean(x, axis=[2, 3, 4], keep_dims=True)
         x = (x - rgb_mean) / 255.
@@ -130,17 +139,19 @@ class FlowNetBase(ModelDesc):
         prediction = self.graph_structure(x)
         prediction = resize(prediction / 20.)
         tf.identity(prediction, name="prediction")
+        tf.identity(endpoint_error(prediction, gt_flow), name='epe')
 
 
 class FlowNet2(FlowNetBase):
 
-    def build_graph(self, left, right):
+    def build_graph(self, left, right, gt_flow):
         x = tf.stack([left, right], axis=2)
         rgb_mean = tf.reduce_mean(x, axis=[2, 3, 4], keep_dims=True)
         x = (x - rgb_mean) / 255.
 
         prediction = self.graph_structure(x)
         tf.identity(prediction, name="prediction")
+        tf.identity(endpoint_error(prediction, gt_flow), name='epe')
 
     def graph_structure(self, x):
         x1, x2 = tf.unstack(x, axis=2)

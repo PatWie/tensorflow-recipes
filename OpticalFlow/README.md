@@ -13,6 +13,7 @@ Given two images, the network is trained to predict the optical flow between the
 * Top: both input images from Flying Chairs, ground-truth, Caffe output
 * Bottom: FlowNet2-C, FlowNet2-S, FlowNet2 results (when converted to TensorFlow)
 
+The authors report the AEE of *2.03* and our implementation gives an AEE of *2.10*.
 
 ### Usage
 

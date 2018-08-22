@@ -23,6 +23,7 @@ Unfortunately, there is a difference between *re-implementing* deep-learning pap
 *FlowNet 2.0: Evolution of Optical Flow Estimation with Deep Networks*
     + just the inference part of FlowNet2-S, FlowNet2-C, FlowNet2
     + please respect the license of the pre-trained weights
+    + this TensorFlow version gets AEE(train) 2.10, while authors reported 2.03
 - **[LetThereBeColor](./LetThereBeColor)** (Iizuka et al., SIGGRAPH 2016) [[pdf]](http://hi.cs.waseda.ac.jp/~iizuka/projects/colorization/en/) [[pretrained model]](http://files.patwie.com/recipes/models/let-there-be-color.npy)
 *Let there be Color!: Joint End-to-end Learning of Global and Local Image Priors for Automatic Image Colorization with Simultaneous Classification*
     + slightly worse performance probably due to shorter training time (authors reported 3 weeks; we just trained a few days)

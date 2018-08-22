@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(TFCorrelation)
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/)
 
-find_package(TensorFlow 1.10.0 EXACT REQUIRED)
-find_package(CUDA 9.0 EXACT REQUIRED)
+find_package(TensorFlow REQUIRED)
+find_package(CUDA 9 REQUIRED)
 
 # set necessary flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SSE_FLAGS} -march=native -fopenmp -D_GLIBCXX_USE_CXX11_ABI=${TensorFlow_ABI}")
@@ -21,6 +21,6 @@ include_directories(SYSTEM "kernels")
 
 # # quick fix for drone-ci
 include_directories(SYSTEM "/usr/local/")
-include_directories(SYSTEM "/home/patwie/libs/cub-1.8.0")
+include_directories(SYSTEM "/graphics/opt/opt_Ubuntu18.04/cub/cub-1.8.0")
 
 add_tensorflow_gpu_operation("correlation_cost")
