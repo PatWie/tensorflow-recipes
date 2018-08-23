@@ -13,7 +13,13 @@ Given two images, the network is trained to predict the optical flow between the
 * Top: both input images from Flying Chairs, ground-truth, Caffe output
 * Bottom: FlowNet2-C, FlowNet2-S, FlowNet2 results (when converted to TensorFlow)
 
-The authors report the AEE of *2.03* and our implementation gives an AEE of *2.10*.
+The authors report the AEE of *2.03* (Caffe Model) on Sintel-clean and our implementation gives an AEE of *2.10*, which is better than other TensorFlow implementations.
+
+| Model|  AEE(sintel clean) |
+| ------ | ------ |
+| FlowNet-S | 3.82|
+| FlowNet-C | 3.08|
+| FlowNet2 | 2.10 (authors report 2.03) |
 
 ### Usage
 

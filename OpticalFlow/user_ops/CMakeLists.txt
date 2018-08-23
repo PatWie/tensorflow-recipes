@@ -19,8 +19,16 @@ include_directories(SYSTEM "${CUDA_INCLUDE_DIRS}/../../")
 include_directories(SYSTEM ${TensorFlow_INCLUDE_DIR})
 include_directories(SYSTEM "kernels")
 
+if (DEFINED ENV{CUB_INC})
+    message(STATUS "Use Cuda-CUB from " $ENV{CUB_INC})
+    set(CUB_INC $ENV{CUB_INC})
+else()
+    message(FATAL_ERROR "requires 'export CUB_INC=/path/to/cub")
+endif()
+
 # # quick fix for drone-ci
 include_directories(SYSTEM "/usr/local/")
 include_directories(SYSTEM "/graphics/opt/opt_Ubuntu18.04/cub/cub-1.8.0")
+include_directories(SYSTEM ${CUB_INC})
 
 add_tensorflow_gpu_operation("correlation_cost")
